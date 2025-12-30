@@ -1,6 +1,8 @@
 services:
   kafka:
     image: apache/kafka:latest
+    env_file:
+      - .env
     ports:
       - 9092:9092
     environment:
@@ -20,6 +22,8 @@ services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:9.2.2
     container_name: es
+    env_file:
+      - .env
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
@@ -29,9 +33,8 @@ services:
   minio:
     image: minio/minio
     container_name: minio
-    environment:
-      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
-      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    env_file:
+      - .env
     volumes:
       - minio_data:/data
     ports:
