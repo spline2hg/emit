@@ -1,0 +1,5 @@
+{
+  "name": "LogStream",
+  "description": "A high-performance log ingestion frontend featuring real-time monitoring, advanced filtering, and detailed JSON inspection.",
+  "requestFramePermissions": []
+}
