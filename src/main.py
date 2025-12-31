@@ -77,7 +77,7 @@ async def ingest_log(
             "status": "accepted",
             "message": "Log queued for processing",
             "timestamp": log_dict['timestamp'],
-            "project_id": project_id
+            "project_id": auth_info['project_id']
         }
 
     except Exception as e:

@@ -76,20 +76,11 @@ export const HomePage: React.FC = () => {
       <header className="bg-white dark:bg-dark-surface border-b border-gray-200 dark:border-dark-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <div className="bg-brand-600 p-2 rounded-lg">
                 <Server className="h-6 w-6 text-white" />
               </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                  Log<span className="text-brand-600">Stream</span>
-                </h1>
-                {user && (
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    Welcome, {user.username}
-                  </p>
-                )}
-              </div>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Emit</h1>
             </div>
             <button
               onClick={() => navigate('/projects')}

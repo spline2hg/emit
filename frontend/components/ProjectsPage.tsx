@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
 import { Project } from '../types';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 import {
   FolderOpen,
   Plus,
@@ -12,6 +14,7 @@ import {
   AlertCircle,
   CheckCircle,
   X,
+  User,
 } from 'lucide-react';
 
 export const ProjectsPage: React.FC = () => {
@@ -76,6 +79,9 @@ export const ProjectsPage: React.FC = () => {
       setProjectDescription('');
       setShowCreateModal(false);
 
+      // Auto-dismiss success message after 3 seconds
+      setTimeout(() => setSuccess(null), 3000);
+
       // Reload projects
       await loadProjects();
     } catch (err) {
@@ -132,17 +138,15 @@ export const ProjectsPage: React.FC = () => {
       <header className="bg-white dark:bg-dark-surface border-b border-gray-200 dark:border-dark-border sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate('/')}
+              className="flex items-center gap-4 hover:opacity-80 transition-opacity"
+            >
               <div className="bg-brand-600 p-2 rounded-lg">
                 <FolderOpen className="h-5 w-5 text-white" />
               </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900 dark:text-white">Projects</h1>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {credentials?.user.username}
-                </p>
-              </div>
-            </div>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white">Emit</h1>
+            </button>
 
             <div className="flex items-center gap-3">
               <button
@@ -153,32 +157,34 @@ export const ProjectsPage: React.FC = () => {
                 New Project
               </button>
               <button
-                onClick={handleLogout}
-                className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium rounded-lg transition-colors"
+                onClick={() => navigate('/profile')}
+                className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                title="Profile"
               >
-                Logout
+                <User className="h-5 w-5" />
               </button>
             </div>
           </div>
         </div>
       </header>
 
+      {/* Toast Notifications */}
+      {error && (
+        <div className="fixed top-4 right-4 max-w-sm p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-start gap-3 shadow-lg animate-in slide-in-from-top z-50">
+          <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-red-800 dark:text-red-300">{error}</p>
+        </div>
+      )}
+
+      {success && (
+        <div className="fixed top-4 right-4 max-w-sm p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg flex items-start gap-3 shadow-lg animate-in slide-in-from-top z-50">
+          <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-green-800 dark:text-green-300">{success}</p>
+        </div>
+      )}
+
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-red-800 dark:text-red-300">{error}</p>
-          </div>
-        )}
-
-        {success && (
-          <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg flex items-start gap-3">
-            <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-green-800 dark:text-green-300">{success}</p>
-          </div>
-        )}
-
         {projects.length === 0 ? (
           <div className="text-center py-16">
             <FolderOpen className="h-16 w-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
@@ -315,8 +321,8 @@ export const ProjectsPage: React.FC = () => {
 
       {/* API Keys Modal */}
       {showApiModal && selectedProject && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[100]">
-          <div className="bg-white dark:bg-dark-surface rounded-xl shadow-xl max-w-2xl w-full border border-gray-200 dark:border-dark-border">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-[100]" onClick={() => setShowApiModal(false)}>
+          <div className="bg-white dark:bg-dark-surface rounded-xl shadow-xl max-w-2xl w-full border border-gray-200 dark:border-dark-border" onClick={(e) => e.stopPropagation()}>
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center gap-3">
@@ -385,9 +391,6 @@ export const ProjectsPage: React.FC = () => {
                   )}
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                     Format: <code className="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded">raw_api_key:project_id</code>
-                    {!loadingApiKey && projectApiKey && (
-                      <span className="text-yellow-600 dark:text-yellow-400 ml-2">⚠️ New key generated. Previous key invalidated.</span>
-                    )}
                   </p>
                 </div>
 
@@ -400,27 +403,27 @@ export const ProjectsPage: React.FC = () => {
                       </p>
                       <button
                         onClick={() => copyToClipboard(
-                          `curl -X POST {API_URL}/ingest \\
-                      -H "X-API-Key: ${projectApiKey}" \\
-                      -H "Content-Type: application/json" \\
-                      -d '{"message": "Test log", "level": "INFO", "service": "my-service"}'`,
+                          `curl -X POST ${API_BASE_URL}/ingest \\
+  -H "X-API-Key: ${projectApiKey}" \\
+  -H "Content-Type: application/json" \\
+  -d '{"message": "Test log", "level": "INFO", "service": "my-service"}'`,
                           'curl-command'
                         )}
                         className="text-xs px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors flex items-center gap-1"
                       >
                         {copiedField === 'curl-command' ? <CheckCircle className="h-3 w-3" /> : 'Copy'}
                       </button>
-                      </div>
-                      <pre className="text-xs text-blue-800 dark:text-blue-300 overflow-x-auto bg-white dark:bg-gray-900 rounded p-3">
-                      {`curl -X POST {API_URL}/ingest \\
-                      -H "X-API-Key: ${projectApiKey}" \\
-                      -H "Content-Type: application/json" \\
-                      -d '{
-                      "message": "Test log",
-                      "level": "INFO",
-                      "service": "my-service"
-                      }'`}
-                      </pre>
+                    </div>
+                    <pre className="text-xs text-blue-800 dark:text-blue-300 overflow-x-auto bg-white dark:bg-gray-900 rounded p-3">
+{`curl -X POST ${API_BASE_URL}/ingest \\
+  -H "X-API-Key: ${projectApiKey}" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "message": "Test log",
+    "level": "INFO",
+    "service": "my-service"
+  }'`}
+                    </pre>
                   </div>
                 )}
 
