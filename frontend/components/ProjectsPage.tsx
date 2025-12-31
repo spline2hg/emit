@@ -203,44 +203,47 @@ export const ProjectsPage: React.FC = () => {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {projects.map((project) => (
               <div
                 key={project.id}
-                className="bg-white dark:bg-dark-surface rounded-xl shadow-sm border border-gray-200 dark:border-dark-border hover:shadow-md transition-shadow"
+                className="group relative bg-white dark:bg-dark-surface rounded-xl shadow-sm border border-gray-200 dark:border-dark-border hover:shadow-lg hover:border-brand-300 dark:hover:border-brand-700 transition-all duration-200"
               >
-                <div className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+                <div className="p-6 flex flex-col h-full">
+                  {/* Header */}
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-base font-semibold text-gray-900 dark:text-white truncate">
                         {project.name}
                       </h3>
                       {project.description && (
-                        <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mt-1">
                           {project.description}
                         </p>
                       )}
                     </div>
-                    <div className="bg-brand-100 dark:bg-brand-900/30 p-2 rounded-lg">
-                      <FolderOpen className="h-4 w-4 text-brand-600 dark:text-brand-400" />
+                    <div className="bg-brand-100 dark:bg-brand-900/40 p-2 rounded-lg flex-shrink-0">
+                      <FolderOpen className="h-5 w-5 text-brand-600 dark:text-brand-400" />
                     </div>
                   </div>
 
-                  <p className="text-xs text-gray-500 dark:text-gray-500 mb-4">
+                  {/* Metadata */}
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mb-4 flex-grow">
                     Created {new Date(project.created_at).toLocaleDateString()}
                   </p>
 
-                  <div className="flex gap-2">
+                  {/* Actions */}
+                  <div className="flex gap-2 pt-3 border-t border-gray-100 dark:border-gray-800">
                     <button
                       onClick={() => handleViewLogs(project)}
-                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium rounded-lg transition-colors"
+                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white text-sm font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
                     >
                       <LogIn className="h-4 w-4" />
-                      View Logs
+                      Logs
                     </button>
                     <button
                       onClick={() => handleViewApiKeys(project)}
-                      className="px-3 py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg transition-colors"
+                      className="px-3 py-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg transition-colors"
                       title="View API Keys"
                     >
                       <Key className="h-4 w-4" />

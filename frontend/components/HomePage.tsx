@@ -174,33 +174,16 @@ export const HomePage: React.FC = () => {
           </div>
 
           <div className="bg-white dark:bg-dark-surface rounded-xl p-8 border border-gray-200 dark:border-dark-border hover:shadow-lg transition-shadow">
-            <div className="bg-brand-100 dark:bg-brand-900/30 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-              <Server className="h-6 w-6 text-brand-600 dark:text-brand-400" />
+            <div className="bg-blue-100 dark:bg-blue-900/30 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
+              <Zap className="h-6 w-6 text-blue-600 dark:text-blue-400" />
             </div>
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-              Live Mode
+              Async Processing
             </h3>
             <p className="text-gray-600 dark:text-gray-400">
-              Watch logs stream in real-time with auto-refreshing live mode for instant visibility.
+              Kafka-based asynchronous processing for scalable, reliable log ingestion and handling.
             </p>
           </div>
-        </div>
-
-        {/* CTA Section */}
-        <div className="mt-16 text-center bg-gradient-to-r from-brand-600 to-brand-700 rounded-2xl p-12">
-          <h3 className="text-3xl font-bold text-white mb-4">
-            Ready to get started?
-          </h3>
-          <p className="text-brand-100 text-lg mb-8 max-w-2xl mx-auto">
-            Create an account, set up your projects, and start logging in seconds.
-          </p>
-          <button
-            onClick={() => navigate('/projects')}
-            className="inline-flex items-center gap-2 px-8 py-4 bg-white hover:bg-gray-100 text-brand-600 text-lg font-semibold rounded-xl transition-colors"
-          >
-            <FolderOpen className="h-5 w-5" />
-            View Projects
-          </button>
         </div>
       </main>
     </div>

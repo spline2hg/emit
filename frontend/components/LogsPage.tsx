@@ -4,7 +4,7 @@ import { LogFilters as FiltersComponent, SearchBar } from './LogFilters';
 import { LogTable } from './LogTable';
 import { LogEntry, LogFilters, PaginationState, BackendType, Project } from '../types';
 import { fetchLogs, getServices } from '../services/logService';
-import { Moon, Sun, Play, Pause, RefreshCw, Server, Database, ArrowLeft } from 'lucide-react';
+import { Moon, Sun, Server, Database, ArrowLeft } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 type StorageBackend = BackendType;
 
@@ -18,7 +18,6 @@ export const LogsPage: React.FC<LogsPageProps> = ({ project }) => {
   const [isDarkMode, setIsDarkMode] = useState(false); // Default to Light mode
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(false);
-  const [isLive, setIsLive] = useState(false);
   const [storageBackend, setStorageBackend] = useState<StorageBackend>('elasticsearch'); // Default to Elasticsearch
   const [availableServices, setAvailableServices] = useState<string[]>([]);
 
@@ -50,6 +49,8 @@ export const LogsPage: React.FC<LogsPageProps> = ({ project }) => {
       root.classList.remove('dark');
     }
   }, [isDarkMode]);
+  
+  const [isLive, setIsLive] = useState(false);
 
   // Data Fetcher
   const loadData = useCallback(async (isBackgroundRefresh = false) => {
@@ -98,20 +99,7 @@ export const LogsPage: React.FC<LogsPageProps> = ({ project }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters, pagination.page, storageBackend]);
 
-  // Live Mode Effect
-  useEffect(() => {
-    let interval: ReturnType<typeof setInterval>;
-    if (isLive) {
-      interval = setInterval(() => {
-        // Live mode with real API would use WebSocket or Server-Sent Events
-        // For now, just refresh the data to show new logs
-        if (pagination.page === 1) {
-            loadData(true);
-        }
-      }, 4000);
-    }
-    return () => clearInterval(interval);
-  }, [isLive, loadData, pagination.page]);
+
 
 
   const handleFilterChange = (newFilters: LogFilters) => {
@@ -154,9 +142,7 @@ export const LogsPage: React.FC<LogsPageProps> = ({ project }) => {
                 <Server className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">
-                  Log<span className="text-brand-600">Stream</span>
-                </h1>
+                <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">Emit</h1>
                 {currentProject && (
                   <p className="text-xs text-gray-600 dark:text-gray-400">{currentProject.name}</p>
                 )}
@@ -165,26 +151,6 @@ export const LogsPage: React.FC<LogsPageProps> = ({ project }) => {
 
             {/* Controls */}
             <div className="flex items-center gap-4">
-               {/* Live Toggle */}
-               <button
-                onClick={() => setIsLive(!isLive)}
-                className={`
-                    flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all
-                    ${isLive
-                        ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 border border-green-200 dark:border-green-800 ring-2 ring-green-500/20'
-                        : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 border border-transparent'}
-                `}
-              >
-                {isLive ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
-                {isLive ? 'Live' : 'Paused'}
-                {isLive && <span className="relative flex h-2 w-2 ml-1">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                </span>}
-              </button>
-
-              <div className="h-6 w-px bg-gray-200 dark:bg-gray-700 mx-1"></div>
-
               {/* Backend Selector */}
               <div className="relative group">
                 <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-700 hover:border-brand-500 dark:hover:border-brand-400 transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg min-w-[140px]">
