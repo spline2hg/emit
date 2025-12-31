@@ -78,6 +78,37 @@ The application will be available at:
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:8000
 
+## Log Client
+
+The `log_client` is a Python logging integration that allows applications to seamlessly send logs to Emit. It acts as a custom logging handler that captures all logs from your application and forwards them to the Emit ingestion API.
+
+### Quick Setup
+
+```python
+from log_client import init
+
+# Initialize the log client
+init(
+    ingest_url="http://localhost:8000/ingest",
+    api_key="your_api_key",
+    service="your_service_name",
+    level=logging.INFO
+)
+
+# Now use standard Python logging
+import logging
+logger = logging.getLogger(__name__)
+logger.info("This log will be sent to Emit")
+```
+
+### Features
+
+- Integrates with Python's standard `logging` module
+- Captures all logs from all loggers in your application
+- Automatic formatting and payload building
+- Supports custom service identification and API key authentication
+- Maintains console output alongside remote ingestion
+
 ## API Endpoints
 
 - `POST /ingest` - Ingest a single log
