@@ -1,4 +1,4 @@
-import { LogEntry, LogLevel } from '../types';
+import { LogEntry } from '../types';
 import { apiService, FetchLogsParams } from './apiService';
 
 // Use real API service - keeping the same interface for compatibility
@@ -60,4 +60,7 @@ export const ingestLogsBatch = async (logs: Array<{
 
 // Re-export the types for backward compatibility
 export type { FetchLogsParams };
+
+
+
 
