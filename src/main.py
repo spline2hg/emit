@@ -431,8 +431,8 @@ async def get_project_api_key(
             detail=f"Failed to generate API key: {str(e)}"                                                                                 
         )
 
-
+    
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
