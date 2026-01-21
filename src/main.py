@@ -15,13 +15,16 @@ import secrets
 from kafka_producer import get_kafka_producer
 from utils import *
 from hashlib import sha256
+import os 
 
 app = FastAPI(title="Mini Log Pipeline")
+
+origins = os.getenv("CORS_ORIGINS", "").split(",")
 
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],  # Frontend development servers
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
