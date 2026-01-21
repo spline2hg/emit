@@ -21,6 +21,8 @@ app = FastAPI(title="Mini Log Pipeline")
 
 origins = os.getenv("CORS_ORIGINS", "").split(",")
 
+print(origins)
+
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
