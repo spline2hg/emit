@@ -10,7 +10,13 @@ def verify_api_key(x_api_key: str = Header(None, alias="X-API-Key")):
     if not x_api_key:
         raise HTTPException(status_code=401, detail="API key required")
         
-    api_key, project_id = x_api_key.split(":")
+    try:
+        api_key, project_id = x_api_key.split(":")
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail="Malformed API key. Expected format: <api_key>:<project_id>",
+        )
     db: Session = SessionLocal()
     try:
         api_key_hash = sha256(api_key.encode()).hexdigest()
