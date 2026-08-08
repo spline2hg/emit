@@ -23,7 +23,7 @@ class Config:
     ELASTICSEARCH_VERIFY_CERTS = os.getenv('ELASTICSEARCH_VERIFY_CERTS', 'true').lower() == 'true'
 
     # Storage settings - Choose ONE backend
-    STORAGE_BACKEND = os.getenv('STORAGE_BACKEND', 'elasticsearch')  # Options: 'sqlite', 'elasticsearch', 's3'
+    STORAGE_BACKEND = os.getenv('STORAGE_BACKEND', 'sqlite')  # Options: 'sqlite', 'elasticsearch', 's3'
 
     # S3-compatible storage settings
     S3_ENDPOINT_URL = os.getenv('S3_ENDPOINT_URL', 'http://localhost:9000')  # For MinIO, use http://localhost:9000

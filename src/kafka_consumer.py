@@ -1,8 +1,13 @@
 from kafka import KafkaConsumer
 import json
 import logging
+import os
 import signal
 import sys
+import time
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 from db import engine
 from models import Base
 from config import Config
@@ -72,7 +77,7 @@ class KafkaLogConsumer:
         """Start consuming messages from Kafka"""
         if not self.consumer:
             logger.error("Kafka consumer not initialized")
-            return
+            return False
 
         self.running = True
         logger.info(f"Starting Kafka consumer for topic: {self.topic}")
@@ -125,8 +130,22 @@ def main():
     # Base.metadata.create_all(bind=engine)
     print("Database tables created/verified")
 
-    consumer = KafkaLogConsumer()
-    consumer.start_consuming()
+    max_retries = 10
+    for attempt in range(1, max_retries + 1):
+        try:
+            consumer = KafkaLogConsumer()
+            if consumer.start_consuming():
+                return
+            logger.error("Consumer stopped before processing any message")
+        except Exception as e:
+            logger.error(f"Consumer failed to start (attempt {attempt}/{max_retries}): {e}")
+
+        if attempt < max_retries:
+            logger.info("Retrying in 5 seconds...")
+            time.sleep(5)
+
+    logger.error("Could not start Kafka consumer after multiple attempts")
+    sys.exit(1)
 
 if __name__ == "__main__":
     main()

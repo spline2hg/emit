@@ -1,0 +1,7 @@
+.env
+.git
+.gitignore
+frontend
+__pycache__
+*.pyc
+*.db

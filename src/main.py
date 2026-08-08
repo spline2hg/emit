@@ -1,3 +1,8 @@
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 from fastapi import FastAPI, status, Depends, Query
 from fastapi.middleware.cors import CORSMiddleware
 from models import Base, LogEntry, User, Project

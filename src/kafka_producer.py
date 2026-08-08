@@ -63,5 +63,9 @@ def get_kafka_producer() -> KafkaLogProducer:
     """Get or create Kafka producer instance"""
     global kafka_producer
     if kafka_producer is None:
-        kafka_producer = KafkaLogProducer()
+        from config import Config
+        kafka_producer = KafkaLogProducer(
+            bootstrap_servers=Config.KAFKA_BOOTSTRAP_SERVERS,
+            topic=Config.KAFKA_TOPIC,
+        )
     return kafka_producer
