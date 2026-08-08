@@ -13,7 +13,7 @@ class Config:
     KAFKA_GROUP_ID = os.getenv('KAFKA_GROUP_ID', 'log-consumer-group')
 
     # SQLite settings
-    SQLITE_DATABASE_URL = os.getenv('SQLITE_DATABASE_URL', 'sqlite:///./logs1.db')
+    SQLITE_DATABASE_URL = os.getenv('SQLITE_DATABASE_URL', 'sqlite:///./logs.db')
 
     # Elasticsearch settings
     ELASTICSEARCH_HOST = os.getenv('ELASTICSEARCH_HOST', 'localhost')

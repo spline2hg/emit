@@ -1,7 +1,7 @@
 from fastapi import Header, HTTPException
 from sqlalchemy.orm import Session
 from db import SessionLocal
-from models import Project
+from models import Workspace
 from hashlib import sha256
 import random
 import secrets
@@ -11,27 +11,27 @@ def verify_api_key(x_api_key: str = Header(None, alias="X-API-Key")):
         raise HTTPException(status_code=401, detail="API key required")
         
     try:
-        api_key, project_id = x_api_key.split(":")
+        api_key, workspace_id = x_api_key.split(":")
     except ValueError:
         raise HTTPException(
             status_code=400,
-            detail="Malformed API key. Expected format: <api_key>:<project_id>",
+            detail="Malformed API key. Expected format: <api_key>:<workspace_id>",
         )
     db: Session = SessionLocal()
     try:
         api_key_hash = sha256(api_key.encode()).hexdigest()
-        
-        project = db.query(Project).filter(
-            Project.id == project_id,
-            Project.api_key_hash == api_key_hash
+
+        workspace = db.query(Workspace).filter(
+            Workspace.id == workspace_id,
+            Workspace.api_key_hash == api_key_hash
         ).first()
 
-        if not project:
+        if not workspace:
             raise HTTPException(status_code=401, detail="Invalid API key")
 
-        # Return both project_id and the api_key for downstream use
+        # Return both workspace_id and the api_key for downstream use
         return {
-            "project_id": project_id,
+            "workspace_id": workspace_id,
             "api_key": api_key
         }
 

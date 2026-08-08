@@ -60,7 +60,7 @@ class ApiService {
     }
   }
 
-  async fetchLogs(params: FetchLogsParams & { project_id?: string }): Promise<LogsResponse> {
+  async fetchLogs(params: FetchLogsParams & { workspace_id?: string }): Promise<LogsResponse> {
     // Convert date format from frontend to backend
     const apiParams: Record<string, any> = {
       page: params.page,
@@ -73,7 +73,7 @@ class ApiService {
     if (params.startDate) apiParams.from_ts = params.startDate;
     if (params.endDate) apiParams.to_ts = params.endDate;
     if (params.backend) apiParams.backend = params.backend;
-    if (params.project_id) apiParams.project_id = params.project_id;
+    if (params.workspace_id) apiParams.workspace_id = params.workspace_id;
 
     return await this.request<LogsResponse>('/logs', apiParams);
   }

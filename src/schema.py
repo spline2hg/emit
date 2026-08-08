@@ -31,15 +31,15 @@ class UserCreateResponse(BaseModel):
     api_key: str
 
 
-class ProjectCreateRequest(BaseModel):
-    """Request model for project creation"""
+class WorkspaceCreateRequest(BaseModel):
+    """Request model for workspace creation"""
     name: str = Field(..., min_length=1, max_length=100)
     description: Optional[str] = Field(None, max_length=500)
     oauth_token: str = Field(..., min_length=1, description="OAuth token for the user")
 
 
-class ProjectCreateResponse(BaseModel):
-    """Response model for project creation"""
+class WorkspaceCreateResponse(BaseModel):
+    """Response model for workspace creation"""
     id: str
     name: str
     description: Optional[str]

@@ -29,7 +29,7 @@ export const JoinPage: React.FC = () => {
   }, []);
 
   const handleContinue = () => {
-    navigate('/projects');
+    navigate('/workspaces');
   };
 
   const copyToClipboard = (text: string, label: string) => {
@@ -132,7 +132,7 @@ export const JoinPage: React.FC = () => {
             onClick={handleContinue}
             className="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
           >
-            Continue to Projects →
+            Continue to Workspaces →
           </button>
         </div>
       </div>

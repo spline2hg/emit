@@ -25,14 +25,14 @@ export interface PaginationState {
   total: number;
 }
 
-// User and Project types
+// User and Workspace types
 export interface User {
   id: string;
   username: string;
   api_key: string;
 }
 
-export interface Project {
+export interface Workspace {
   id: string;
   name: string;
   description: string | null;
@@ -41,7 +41,7 @@ export interface Project {
   created_at: string;
 }
 
-export interface CreateProjectRequest {
+export interface CreateWorkspaceRequest {
   name: string;
   description?: string;
   oauth_token: string;
@@ -50,6 +50,6 @@ export interface CreateProjectRequest {
 export interface StoredCredentials {
   user: User;
   oauth_token: string;
-  projects: Project[];
+  workspaces: Workspace[];
 }
 

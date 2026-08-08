@@ -83,10 +83,10 @@ export const HomePage: React.FC = () => {
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Emit</h1>
             </div>
             <button
-              onClick={() => navigate('/projects')}
+              onClick={() => navigate('/workspaces')}
               className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-lg transition-colors"
             >
-              My Projects
+              My Workspaces
             </button>
           </div>
         </div>
@@ -100,14 +100,14 @@ export const HomePage: React.FC = () => {
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
             Stream, store, and analyze your logs in real-time with powerful filtering,
-            multiple storage backends, and project-based organization.
+            multiple storage backends, and workspace-based organization.
           </p>
           <button
-            onClick={() => navigate('/projects')}
+            onClick={() => navigate('/workspaces')}
             className="inline-flex items-center gap-2 px-8 py-4 bg-brand-600 hover:bg-brand-700 text-white text-lg font-semibold rounded-xl transition-all hover:scale-105 hover:shadow-lg"
           >
             <FolderOpen className="h-5 w-5" />
-            Go to Projects
+            Go to Workspaces
           </button>
         </div>
 
@@ -142,10 +142,10 @@ export const HomePage: React.FC = () => {
               <FolderOpen className="h-6 w-6 text-purple-600 dark:text-purple-400" />
             </div>
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-              Project Organization
+              Workspace Organization
             </h3>
             <p className="text-gray-600 dark:text-gray-400">
-              Organize logs by projects with unique API keys for secure, isolated log management.
+              Organize logs by workspaces with unique API keys for secure, isolated log management.
             </p>
           </div>
 
@@ -169,7 +169,7 @@ export const HomePage: React.FC = () => {
               Secure API Keys
             </h3>
             <p className="text-gray-600 dark:text-gray-400">
-              Project-specific API keys with OAuth token authentication for secure log ingestion.
+              Workspace-specific API keys with OAuth token authentication for secure log ingestion.
             </p>
           </div>
 

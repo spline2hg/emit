@@ -8,7 +8,7 @@ export const ProfilePage: React.FC = () => {
   const credentials = authService.getCredentials();
 
   if (!credentials) {
-    navigate('/join');
+    navigate('/');
     return null;
   }
 
@@ -24,7 +24,7 @@ export const ProfilePage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <button
-              onClick={() => navigate('/projects')}
+              onClick={() => navigate('/workspaces')}
               className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
             >
               <ArrowLeft className="h-5 w-5" />

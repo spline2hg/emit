@@ -1,4 +1,4 @@
-import { User, Project, CreateProjectRequest, StoredCredentials } from '../types';
+import { User, Workspace, CreateWorkspaceRequest, StoredCredentials } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 const STORAGE_KEY = 'logstream_credentials';
@@ -49,7 +49,7 @@ class AuthService {
 
   // API Calls
   async registerUser(): Promise<User> {
-    const response = await fetch(`${this.baseUrl}/join`, {
+    const response = await fetch(`${this.baseUrl}/users`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -73,19 +73,19 @@ class AuthService {
     this.saveCredentials({
       user,
       oauth_token: userData.api_key, // Using api_key as oauth_token for now
-      projects: [],
+      workspaces: [],
     });
 
     return user;
   }
 
-  async createProject(projectData: CreateProjectRequest): Promise<Project> {
-    const response = await fetch(`${this.baseUrl}/projects`, {
+  async createWorkspace(workspaceData: CreateWorkspaceRequest): Promise<Workspace> {
+    const response = await fetch(`${this.baseUrl}/workspaces`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(projectData),
+      body: JSON.stringify(workspaceData),
     });
 
     if (!response.ok) {
@@ -93,28 +93,28 @@ class AuthService {
       throw new Error(errorData.detail || `HTTP ${response.status}: ${response.statusText}`);
     }
 
-    const projectDataResponse = await response.json();
+    const data = await response.json();
 
-    const project: Project = {
-      id: projectDataResponse.id,
-      name: projectDataResponse.name,
-      description: projectDataResponse.description,
-      api_key: projectDataResponse.api_key,
-      owner_id: projectDataResponse.owner_id,
-      created_at: projectDataResponse.created_at,
+    const workspace: Workspace = {
+      id: data.id,
+      name: data.name,
+      description: data.description,
+      api_key: data.api_key,
+      owner_id: data.owner_id,
+      created_at: data.created_at,
     };
 
     // Add to stored credentials
     if (this.credentials) {
-      this.credentials.projects.push(project);
+      this.credentials.workspaces.push(workspace);
       this.saveCredentials(this.credentials);
     }
 
-    return project;
+    return workspace;
   }
 
-  async getProjects(oauthToken: string): Promise<Project[]> {
-    const response = await fetch(`${this.baseUrl}/projects?oauth_token=${encodeURIComponent(oauthToken)}`);
+  async getWorkspaces(oauthToken: string): Promise<Workspace[]> {
+    const response = await fetch(`${this.baseUrl}/workspaces?oauth_token=${encodeURIComponent(oauthToken)}`);
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -125,20 +125,20 @@ class AuthService {
 
     // Update stored credentials
     if (this.credentials) {
-      this.credentials.projects = data.projects;
+      this.credentials.workspaces = data.workspaces;
       this.saveCredentials(this.credentials);
     }
 
-    return data.projects;
+    return data.workspaces;
   }
 
-  async getProjectApiKey(projectId: string): Promise<string> {
+  async getWorkspaceApiKey(workspaceId: string): Promise<string> {
     if (!this.credentials?.oauth_token) {
       throw new Error('Not authenticated');
     }
 
     const response = await fetch(
-      `${this.baseUrl}/projects/${projectId}/api-key?oauth_token=${encodeURIComponent(this.credentials.oauth_token)}`
+      `${this.baseUrl}/workspaces/${workspaceId}/api-key?oauth_token=${encodeURIComponent(this.credentials.oauth_token)}`
     );
 
     if (!response.ok) {

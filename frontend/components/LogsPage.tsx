@@ -2,17 +2,17 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogFilters as FiltersComponent, SearchBar } from './LogFilters';
 import { LogTable } from './LogTable';
-import { LogEntry, LogFilters, PaginationState, BackendType, Project } from '../types';
+import { LogEntry, LogFilters, PaginationState, BackendType, Workspace } from '../types';
 import { fetchLogs, getServices } from '../services/logService';
 import { Moon, Sun, Server, Database, ArrowLeft } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 type StorageBackend = BackendType;
 
 interface LogsPageProps {
-  project?: Project;
+  workspace?: Workspace;
 }
 
-export const LogsPage: React.FC<LogsPageProps> = ({ project }) => {
+export const LogsPage: React.FC<LogsPageProps> = ({ workspace }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isDarkMode, setIsDarkMode] = useState(false); // Default to Light mode
@@ -21,8 +21,8 @@ export const LogsPage: React.FC<LogsPageProps> = ({ project }) => {
   const [storageBackend, setStorageBackend] = useState<StorageBackend>('elasticsearch'); // Default to Elasticsearch
   const [availableServices, setAvailableServices] = useState<string[]>([]);
 
-  // Get project from location state or props
-  const currentProject = location.state?.project || project;
+  // Get workspace from location state or props
+  const currentWorkspace = location.state?.workspace || workspace;
 
   // State: Filters
   const [filters, setFilters] = useState<LogFilters>({
@@ -65,7 +65,7 @@ export const LogsPage: React.FC<LogsPageProps> = ({ project }) => {
         startDate: filters.startDate,
         endDate: filters.endDate,
         backend: storageBackend,
-        project_id: currentProject?.id
+        workspace_id: currentWorkspace?.id
       });
 
       setLogs(data);
@@ -75,7 +75,7 @@ export const LogsPage: React.FC<LogsPageProps> = ({ project }) => {
     } finally {
       if (!isBackgroundRefresh) setLoading(false);
     }
-  }, [pagination.page, pagination.size, filters, storageBackend, currentProject]);
+  }, [pagination.page, pagination.size, filters, storageBackend, currentWorkspace]);
 
   // Load available services when backend changes
   useEffect(() => {
@@ -129,11 +129,11 @@ export const LogsPage: React.FC<LogsPageProps> = ({ project }) => {
 
             {/* Logo Area */}
             <div className="flex items-center gap-3">
-              {currentProject && (
+              {currentWorkspace && (
                 <button
-                  onClick={() => navigate('/projects')}
+                  onClick={() => navigate('/workspaces')}
                   className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                  title="Back to Projects"
+                  title="Back to Workspaces"
                 >
                   <ArrowLeft className="h-5 w-5" />
                 </button>
@@ -143,8 +143,8 @@ export const LogsPage: React.FC<LogsPageProps> = ({ project }) => {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">Emit</h1>
-                {currentProject && (
-                  <p className="text-xs text-gray-600 dark:text-gray-400">{currentProject.name}</p>
+                {currentWorkspace && (
+                  <p className="text-xs text-gray-600 dark:text-gray-400">{currentWorkspace.name}</p>
                 )}
               </div>
             </div>

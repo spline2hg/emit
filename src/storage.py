@@ -36,7 +36,7 @@ class StorageBackend(ABC):
         to_ts: str | None = None,
         page: int = 1,
         size: int = 50,
-        project_id: str | None = None
+        workspace_id: str | None = None
     ) -> Dict[str, Any]:
         """Return logs + total count"""
         pass
@@ -66,19 +66,19 @@ class SQLiteStorage(StorageBackend):
             else:
                 timestamp = datetime.utcnow()
 
-            # Create log entry with project_id
+            # Create log entry with workspace_id
             log_entry = LogEntry(
                 timestamp=timestamp,
                 level=log_data.get('level', 'INFO').upper(),
                 service=log_data.get('service', 'unknown'),
                 message=log_data.get('message', ''),
                 log_metadata=log_data.get('metadata'),
-                project_id=log_data.get('project_id', 'default')
+                workspace_id=log_data.get('workspace_id', 'default')
             )
 
             db.add(log_entry)
             db.commit()
-            logger.info(f"Saved log to SQLite: {log_entry.level} - {log_entry.message} (Project: {log_entry.project_id})")
+            logger.info(f"Saved log to SQLite: {log_entry.level} - {log_entry.message} (Workspace: {log_entry.workspace_id})")
             return True
         except Exception as e:
             logger.error(f"Failed to save log to SQLite: {e}")
@@ -102,7 +102,7 @@ class SQLiteStorage(StorageBackend):
         """SQLite cleanup"""
         pass
 
-    def query_logs(self, search: str | None = None, level: str | None = None, service: str | None = None, from_ts: str | None = None, to_ts: str | None = None, page: int = 1, size: int = 50, project_id: str | None = None) -> Dict[str, Any]:
+    def query_logs(self, search: str | None = None, level: str | None = None, service: str | None = None, from_ts: str | None = None, to_ts: str | None = None, page: int = 1, size: int = 50, workspace_id: str | None = None) -> Dict[str, Any]:
         """Query logs with filters and pagination using SQLite"""
         try:
             from models import LogEntry
@@ -133,8 +133,8 @@ class SQLiteStorage(StorageBackend):
                 if service and service != 'ALL':
                     filters.append(LogEntry.service == service)
 
-                if project_id:
-                    filters.append(LogEntry.project_id == project_id)
+                if workspace_id:
+                    filters.append(LogEntry.workspace_id == workspace_id)
 
                 if from_ts:
                     try:
@@ -241,7 +241,7 @@ class ElasticsearchStorage(StorageBackend):
                 "service": log_data.get('service', 'unknown'),
                 "message": log_data.get('message', ''),
                 "metadata": log_data.get('metadata', {}),
-                "project_id": log_data.get('project_id', 'default')
+                "workspace_id": log_data.get('workspace_id', 'default')
             }
 
             # Convert timestamp to proper format for Elasticsearch
@@ -255,7 +255,7 @@ class ElasticsearchStorage(StorageBackend):
                 body=doc
             )
 
-            logger.info(f"Saved log to Elasticsearch: {doc['level']} - {doc['message']} (ID: {response.get('_id')}, Project: {doc['project_id']})")
+            logger.info(f"Saved log to Elasticsearch: {doc['level']} - {doc['message']} (ID: {response.get('_id')}, Workspace: {doc['workspace_id']})")
             return True
 
         except Exception as e:
@@ -279,7 +279,7 @@ class ElasticsearchStorage(StorageBackend):
             logger.error(f"Error closing Elasticsearch connection: {e}")
 
 
-    def query_logs(self, search: str | None = None, level: str | None = None, service: str | None = None, from_ts: str | None = None, to_ts: str | None = None, page: int = 1, size: int = 50, project_id: str | None = None) -> Dict[str, Any]:
+    def query_logs(self, search: str | None = None, level: str | None = None, service: str | None = None, from_ts: str | None = None, to_ts: str | None = None, page: int = 1, size: int = 50, workspace_id: str | None = None) -> Dict[str, Any]:
         """
         Query logs with filters and pagination using Elasticsearch DSL
 
@@ -335,10 +335,10 @@ class ElasticsearchStorage(StorageBackend):
                     Q('term', service__keyword=service)
                 )
 
-            # Exact project_id filter
-            if project_id:
+            # Exact workspace_id filter
+            if workspace_id:
                 filter_clauses.append(
-                    Q('term', project_id__keyword=project_id)
+                    Q('term', workspace_id__keyword=workspace_id)
                 )
 
             # Date range filter
@@ -519,9 +519,9 @@ class S3CompatibleStorage(StorageBackend):
 
     def _generate_object_key(self, log_data: Dict[str, Any]) -> str:
         """
-        Generate S3 object key based on timestamp and project
+        Generate S3 object key based on timestamp and workspace
 
-        Format: prefix/project_id/YYYY/MM/DD/HH/filename.json
+        Format: prefix/workspace_id/YYYY/MM/DD/HH/filename.json
         """
         try:
             timestamp_str = log_data.get('timestamp')
@@ -532,12 +532,12 @@ class S3CompatibleStorage(StorageBackend):
             else:
                 timestamp = datetime.utcnow()
 
-            project_id = log_data.get('project_id', 'default')
+            workspace_id = log_data.get('workspace_id', 'default')
 
             # Create key path
             key_parts = [
                 self.prefix,
-                project_id,
+                workspace_id,
                 timestamp.strftime('%Y'),
                 timestamp.strftime('%m'),
                 timestamp.strftime('%d'),
@@ -564,7 +564,7 @@ class S3CompatibleStorage(StorageBackend):
                 "service": log_data.get('service', 'unknown'),
                 "message": log_data.get('message', ''),
                 "metadata": log_data.get('metadata', {}),
-                "project_id": log_data.get('project_id', 'default')
+                "workspace_id": log_data.get('workspace_id', 'default')
             }
 
             # Generate object key
@@ -582,7 +582,7 @@ class S3CompatibleStorage(StorageBackend):
                 Metadata={
                     'level': log_entry['level'],
                     'service': log_entry['service'],
-                    'project_id': str(log_entry['project_id'])
+                    'workspace_id': str(log_entry['workspace_id'])
                 }
             )
 
@@ -625,7 +625,7 @@ class S3CompatibleStorage(StorageBackend):
         to_ts: str | None = None,
         page: int = 1,
         size: int = 50,
-        project_id: str | None = None
+        workspace_id: str | None = None
     ) -> Dict[str, Any]:
         """
         Query logs with filters and pagination from S3
@@ -642,8 +642,8 @@ class S3CompatibleStorage(StorageBackend):
             # Build prefix for listing (use date range if provided)
             list_prefix = self.prefix
 
-            if project_id:
-                list_prefix = f"{self.prefix}/{project_id}"
+            if workspace_id:
+                list_prefix = f"{self.prefix}/{workspace_id}"
             elif from_ts:
                 try:
                     start_time = datetime.fromisoformat(from_ts.replace('Z', '+00:00'))

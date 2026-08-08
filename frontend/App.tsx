@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { HomePage } from './components/HomePage';
-import { ProjectsPage } from './components/ProjectsPage';
+import { WorkspacesPage } from './components/WorkspacesPage';
 import { LogsPage } from './components/LogsPage';
 import { ProfilePage } from './components/ProfilePage';
 import { authService } from './services/authService';
@@ -18,10 +18,10 @@ function App() {
 
         {/* Protected routes */}
         <Route
-          path="/projects"
+          path="/workspaces"
           element={
             isAuthenticated ? (
-              <ProjectsPage />
+              <WorkspacesPage />
             ) : (
               <Navigate to="/" replace />
             )

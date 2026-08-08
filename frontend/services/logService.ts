@@ -2,7 +2,7 @@ import { LogEntry } from '../types';
 import { apiService, FetchLogsParams } from './apiService';
 
 // Use real API service - keeping the same interface for compatibility
-export const fetchLogs = async (params: FetchLogsParams & { project_id?: string }): Promise<{ data: LogEntry[], total: number }> => {
+export const fetchLogs = async (params: FetchLogsParams & { workspace_id?: string }): Promise<{ data: LogEntry[], total: number }> => {
   try {
     const response = await apiService.fetchLogs(params);
     return {
