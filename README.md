@@ -122,13 +122,14 @@ logger.info("This log will be sent to Emit")
 
 ```
 emit/
-├── src/                # Backend source code
-│   ├── main.py         # FastAPI application
-│   ├── models.py       # Data models
-│   ├── schema.py       # Database schema
-│   ├── storage.py      # Storage backends
-│   ├── kafka_*.py      # Kafka producer/consumer
-│   └── log_client/     # Log client library
+├── backend/
+│   └── src/            # Backend source code
+│       ├── main.py     # FastAPI application
+│       ├── models.py   # Data models
+│       ├── schema.py   # Database schema
+│       ├── storage.py  # Storage backends
+│       ├── kafka_*.py  # Kafka producer/consumer
+│       └── log_client/ # Log client library
 ├── frontend/           # React frontend application
 │   ├── components/     # React components
 │   ├── services/       # API service layer
