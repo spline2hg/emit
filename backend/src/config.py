@@ -58,9 +58,8 @@ def kafka_client_options() -> dict:
 
     if Config.KAFKA_SECURITY_PROTOCOL in {'SSL', 'SASL_SSL'}:
         if Config.KAFKA_SSL_CA_CERT:
-            options['ssl_context'] = ssl.create_default_context(
-                cadata=Config.KAFKA_SSL_CA_CERT
-            )
+            ca_cert = Config.KAFKA_SSL_CA_CERT.replace('\\n', '\n')
+            options['ssl_context'] = ssl.create_default_context(cadata=ca_cert)
         elif Config.KAFKA_SSL_CAFILE:
             options['ssl_cafile'] = Config.KAFKA_SSL_CAFILE
 
