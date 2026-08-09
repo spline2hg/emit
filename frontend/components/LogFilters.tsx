@@ -4,9 +4,6 @@ import { LogFilters as ILogFilters, LogLevel } from '../types';
 
 const LEVELS: (LogLevel | 'ALL')[] = ['ALL', 'INFO', 'ERROR', 'WARNING', 'DEBUG', 'CRITICAL'];
 
-const selectClass =
-  'appearance-none block w-full rounded-md border border-input bg-background py-2 pl-3 pr-8 text-sm text-foreground cursor-pointer shadow-sm focus:outline-none focus:ring-1 focus:ring-ring sm:text-sm';
-
 interface CustomDatePickerProps {
   value: string;
   onChange: (date: string) => void;
@@ -85,12 +82,12 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({ value, onChange, pl
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 top-full z-50 mt-1 min-w-[280px] rounded-lg border border-border bg-card p-3 shadow-lg">
+        <div className="absolute left-0 top-full z-50 mt-1 min-w-[280px] rounded-lg border border-border bg-popover p-3 shadow-lg">
           <div className="mb-3 flex items-center justify-between">
             <button
               type="button"
               onClick={handlePrevMonth}
-              className="p-1 rounded transition-colors hover:bg-accent"
+              className="rounded p-1 transition-colors hover:bg-accent"
             >
               <ChevronLeft className="size-4 text-muted-foreground" />
             </button>
@@ -100,7 +97,7 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({ value, onChange, pl
             <button
               type="button"
               onClick={handleNextMonth}
-              className="p-1 rounded transition-colors hover:bg-accent"
+              className="rounded p-1 transition-colors hover:bg-accent"
             >
               <ChevronRight className="size-4 text-muted-foreground" />
             </button>
@@ -149,13 +146,13 @@ interface SearchBarProps {
 
 export const SearchBar: React.FC<SearchBarProps> = ({ query, onQueryChange }) => {
   return (
-    <div className="relative flex-grow max-w-2xl group">
+    <div className="relative max-w-2xl flex-grow group">
       <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
         <Search className="size-5 text-muted-foreground transition-colors group-focus-within:text-primary" />
       </div>
       <input
         type="text"
-        className="block w-full rounded-lg border border-input bg-background py-2.5 pl-10 pr-3 leading-5 text-foreground placeholder:text-muted-foreground shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-ring sm:text-sm"
+        className="block w-full rounded-lg border border-input bg-background py-2.5 pl-10 pr-3 leading-5 text-foreground shadow-sm placeholder:text-muted-foreground focus:border-transparent focus:outline-none focus:ring-2 focus:ring-ring sm:text-sm"
         placeholder="Search logs (message, trace ID, metadata)…"
         value={query}
         onChange={(e) => onQueryChange(e.target.value)}
@@ -185,9 +182,12 @@ export const LogFilters: React.FC<LogFiltersProps> = ({ filters, onFilterChange,
     });
   };
 
+  const selectClass =
+    'appearance-none block w-full rounded-md border border-input bg-background py-2 pl-3 pr-8 text-sm text-foreground cursor-pointer shadow-sm focus:outline-none focus:ring-1 focus:ring-ring sm:text-sm';
+
   return (
     <div className="border-b border-border bg-card">
-      <div className="mx-auto flex flex-wrap items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
+      <div className="flex flex-wrap items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
         {/* Level Select */}
         <div className="relative min-w-[150px]">
           <select

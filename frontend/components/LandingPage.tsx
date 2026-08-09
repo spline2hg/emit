@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Copy, Check, AlertCircle, ArrowRight } from 'lucide-react';
-import { authService } from '../services/authService';
-import { Logo } from './Logo';
+import { Copy, Check, ArrowRight } from 'lucide-react';
+import Navbar from './Navbar';
 
 const FEATURES = [
   'Realtime streaming',
@@ -43,31 +42,9 @@ const CURL_EXAMPLE = `curl -X POST http://localhost:8000/ingest \\
     "service": "auth"
   }'`;
 
-export const HomePage: React.FC = () => {
+const LandingPage: React.FC = () => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
-
-  useEffect(() => {
-    const initUser = async () => {
-      const credentials = authService.getCredentials();
-      if (credentials) {
-        setLoading(false);
-        return;
-      }
-
-      try {
-        await authService.registerUser();
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to create account');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    initUser();
-  }, []);
+  const [copied, setCopied] = React.useState(false);
 
   const copyExample = () => {
     navigator.clipboard.writeText(CURL_EXAMPLE);
@@ -75,59 +52,9 @@ export const HomePage: React.FC = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="flex flex-col items-center gap-3 text-muted-foreground">
-          <div className="size-8 animate-spin rounded-full border-2 border-border border-t-primary"></div>
-          <p className="text-sm">Preparing your workspace…</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex min-h-screen items-center justify-center p-4">
-        <div className="w-full max-w-md rounded-xl border border-border bg-card p-8 text-center shadow-sm">
-          <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-destructive/10">
-            <AlertCircle className="size-6 text-destructive" />
-          </div>
-          <h1 className="text-xl font-semibold tracking-tight">Something went wrong</h1>
-          <p className="mt-2 text-sm text-muted-foreground">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-6 h-9 w-full rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            Try again
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-background">
-      {/* Navbar */}
-      <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 md:px-6">
-          <Logo onClick={() => navigate('/')} />
-          <nav className="flex items-center gap-1">
-            <button
-              onClick={() => navigate('/workspaces')}
-              className="rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-            >
-              Get started
-            </button>
-            <button
-              onClick={() => navigate('/workspaces')}
-              className="rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-            >
-              Workspaces
-            </button>
-          </nav>
-        </div>
-      </header>
+      <Navbar />
 
       {/* Hero + linked sections, following the uiexample layout */}
       <main className="bg-sidebar pb-32">
@@ -153,10 +80,10 @@ export const HomePage: React.FC = () => {
                 <ArrowRight className="size-4" />
               </button>
               <button
-                onClick={() => navigate('/workspaces')}
+                onClick={() => navigate('/logs')}
                 className="h-10 rounded-md border border-border bg-background px-6 text-sm font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
               >
-                My workspaces
+                Explore logs
               </button>
             </div>
           </section>
@@ -264,23 +191,11 @@ export const HomePage: React.FC = () => {
                 </div>
               ))}
             </div>
-
-            {/* CTA */}
-            <section className="flex flex-col gap-4 px-8 py-10 sm:px-12 md:flex-row md:items-center md:justify-between">
-              <h2 className="text-balance text-xl font-semibold tracking-tight sm:text-2xl md:text-3xl lg:text-[40px]">
-                Start building with Emit
-              </h2>
-              <button
-                onClick={() => navigate('/workspaces')}
-                className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-              >
-                Get started
-                <ArrowRight className="size-4" />
-              </button>
-            </section>
           </div>
         </div>
       </main>
     </div>
   );
 };
+
+export default LandingPage;

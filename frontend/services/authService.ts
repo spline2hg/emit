@@ -1,13 +1,13 @@
 import { User, Workspace, CreateWorkspaceRequest, StoredCredentials } from '../types';
+import { BACKEND_URL } from './config';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 const STORAGE_KEY = 'logstream_credentials';
 
 class AuthService {
   private baseUrl: string;
   private credentials: StoredCredentials | null = null;
 
-  constructor(baseUrl: string = API_BASE_URL) {
+  constructor(baseUrl: string = BACKEND_URL) {
     this.baseUrl = baseUrl;
     this.loadCredentials();
   }
@@ -45,6 +45,60 @@ class AuthService {
 
   public isAuthenticated(): boolean {
     return this.credentials !== null;
+  }
+
+  // Health
+  async checkHealth(): Promise<boolean> {
+    try {
+      const response = await fetch(`${this.baseUrl}/health`);
+      return response.ok;
+    } catch {
+      return false;
+    }
+  }
+
+  // Fetch fresh user info so created_at is populated
+  async refreshUser(): Promise<User | null> {
+    const oauthToken = this.getOAuthToken();
+    if (!oauthToken) return null;
+
+    const response = await fetch(`${this.baseUrl}/users/me?oauth_token=${encodeURIComponent(oauthToken)}`);
+
+    if (!response.ok) return null;
+
+    const data = await response.json();
+
+    if (this.credentials) {
+      this.credentials.user.created_at = data.created_at;
+      this.credentials.user.id = data.id;
+      this.saveCredentials(this.credentials);
+    }
+
+    return {
+      id: data.id,
+      username: data.username,
+      api_key: this.credentials?.user.api_key || '',
+      created_at: data.created_at,
+    };
+  }
+
+  // Workspace api key regeneration (inline in workspace view)
+  async rotateWorkspaceApiKey(workspaceId: string): Promise<string> {
+    if (!this.credentials?.oauth_token) {
+      throw new Error('Not authenticated');
+    }
+
+    const response = await fetch(
+      `${this.baseUrl}/workspaces/${workspaceId}/api-key?oauth_token=${encodeURIComponent(this.credentials.oauth_token)}`
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || `HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data.api_key;
   }
 
   // API Calls

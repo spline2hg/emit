@@ -30,6 +30,7 @@ export interface User {
   id: string;
   username: string;
   api_key: string;
+  created_at?: string;
 }
 
 export interface Workspace {

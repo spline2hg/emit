@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { LogEntry, LogLevel } from '../types';
-import { ChevronRight, ChevronDown, Copy, Activity } from 'lucide-react';
+import { ChevronRight, ChevronDown, Copy, Activity, Loader2 } from 'lucide-react';
 
 interface LogTableProps {
   logs: LogEntry[];
@@ -10,13 +10,13 @@ interface LogTableProps {
 const getLevelStyles = (level: LogLevel): string => {
   switch (level) {
     case 'ERROR':
-      return 'border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/50 dark:text-red-400';
+      return 'border-red-900 bg-red-950/50 text-red-400';
     case 'CRITICAL':
-      return 'border-destructive/30 bg-destructive text-white dark:bg-destructive';
+      return 'border-destructive/30 bg-destructive text-primary-foreground';
     case 'WARNING':
-      return 'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900 dark:bg-amber-950/50 dark:text-amber-400';
+      return 'border-amber-900 bg-amber-950/50 text-amber-400';
     case 'INFO':
-      return 'border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900 dark:bg-blue-950/50 dark:text-blue-400';
+      return 'border-blue-900 bg-blue-950/50 text-blue-400';
     case 'DEBUG':
       return 'border-border bg-secondary text-muted-foreground';
     default:
@@ -40,7 +40,7 @@ const JsonViewer: React.FC<{ data: any }> = ({ data }) => {
         className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
         title="Copy JSON"
       >
-        {copied ? <span className="text-xs">Copied</span> : null}
+        {copied ? <span className="text-xs text-green-400">Copied</span> : null}
         <Copy className="size-3.5" />
       </button>
       <pre className="leading-relaxed text-foreground">{JSON.stringify(data, null, 2)}</pre>
@@ -99,11 +99,11 @@ const LogRow: React.FC<{ log: LogEntry }> = ({ log }) => {
       </tr>
       {expanded && (
         <tr>
-          <td colSpan={5} className="bg-muted/50 px-4 py-2 dark:bg-secondary/30">
+          <td colSpan={5} className="bg-muted/50 px-4 py-2">
             <div className="pl-10 pr-4">
               <div className="mb-1 flex items-center gap-2">
                 <Activity className="size-3 text-muted-foreground" />
-                <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
                   Metadata payload
                 </span>
               </div>
@@ -121,8 +121,8 @@ export const LogTable: React.FC<LogTableProps> = ({ logs, loading }) => {
     return (
       <div className="flex h-96 w-full items-center justify-center text-muted-foreground">
         <div className="flex flex-col items-center gap-2">
-          <div className="size-8 animate-spin rounded-full border-2 border-border border-t-primary"></div>
-          <p>Loading logs…</p>
+          <Loader2 className="size-6 animate-spin text-muted-foreground" />
+          <p className="text-sm">Loading logs…</p>
         </div>
       </div>
     );
@@ -132,7 +132,7 @@ export const LogTable: React.FC<LogTableProps> = ({ logs, loading }) => {
     return (
       <div className="flex h-96 w-full flex-col items-center justify-center gap-2 text-muted-foreground">
         <Activity className="size-8 opacity-40" />
-        <p>No logs found matching your criteria.</p>
+        <p className="text-sm">No logs found matching your criteria.</p>
       </div>
     );
   }
@@ -157,7 +157,7 @@ export const LogTable: React.FC<LogTableProps> = ({ logs, loading }) => {
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-border bg-background">
+        <tbody className="divide-y divide-border">
           {logs.map((log) => (
             <LogRow key={log.id} log={log} />
           ))}
