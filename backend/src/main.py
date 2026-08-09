@@ -13,9 +13,14 @@ from routers import ingest, logs, users, workspaces
 
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Mini Log Pipeline")
-
 cors_origins = [o.strip() for o in os.getenv("CORS_ORIGINS", "").split(",") if o.strip()]
+
+app = FastAPI(
+    title="Mini Log Pipeline",
+    docs_url=None,
+    redoc_url=None,
+    openapi_url=None,
+)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
