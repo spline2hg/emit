@@ -1,35 +1,53 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>LogStream</title>
+    <title>Emit — Modern log management</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@300..800&family=Geist+Mono:wght@400..600&display=swap"
+      rel="stylesheet"
+    />
     <script>
       tailwind.config = {
         darkMode: 'class',
         theme: {
           extend: {
             fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-              mono: ['JetBrains Mono', 'monospace'],
+              sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+              mono: ['"Geist Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
             },
             colors: {
-              brand: {
-                50: '#e8e9e9',
-                100: '#d1d3d3',
-                500: '#2c2f2f',
-                600: '#1a1c1c', // Primary Dark Color
-                700: '#0f1010',
-                900: '#0a0b0b',
-              },
-              dark: {
-                bg: '#1a1c1c', // Custom dark background
-                surface: '#242626', // Slightly lighter surface
-                border: '#2d2f2f', // Border color
-              }
-            }
+              background: 'var(--background)',
+              foreground: 'var(--foreground)',
+              card: 'var(--card)',
+              'card-foreground': 'var(--card-foreground)',
+              popover: 'var(--popover)',
+              'popover-foreground': 'var(--popover-foreground)',
+              primary: 'var(--primary)',
+              'primary-foreground': 'var(--primary-foreground)',
+              secondary: 'var(--secondary)',
+              'secondary-foreground': 'var(--secondary-foreground)',
+              muted: 'var(--muted)',
+              'muted-foreground': 'var(--muted-foreground)',
+              accent: 'var(--accent)',
+              'accent-foreground': 'var(--accent-foreground)',
+              destructive: 'var(--destructive)',
+              border: 'var(--border)',
+              input: 'var(--input)',
+              ring: 'var(--ring)',
+              sidebar: 'var(--sidebar)',
+            },
+            borderRadius: {
+              sm: 'calc(var(--radius) - 4px)',
+              DEFAULT: 'var(--radius)',
+              md: 'calc(var(--radius) - 2px)',
+              lg: 'var(--radius)',
+              xl: 'calc(var(--radius) + 4px)',
+            },
           },
         },
       }
@@ -45,8 +63,8 @@
 }
 </script>
 <link rel="stylesheet" href="/index.css">
-</head>
-  <body class="bg-gray-50 text-gray-900 dark:bg-dark-bg dark:text-gray-100 transition-colors duration-200">
+  </head>
+  <body class="min-h-screen bg-background text-foreground transition-colors duration-200">
     <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
 </body>

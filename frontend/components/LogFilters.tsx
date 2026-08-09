@@ -4,13 +4,16 @@ import { LogFilters as ILogFilters, LogLevel } from '../types';
 
 const LEVELS: (LogLevel | 'ALL')[] = ['ALL', 'INFO', 'ERROR', 'WARNING', 'DEBUG', 'CRITICAL'];
 
+const selectClass =
+  'appearance-none block w-full rounded-md border border-input bg-background py-2 pl-3 pr-8 text-sm text-foreground cursor-pointer shadow-sm focus:outline-none focus:ring-1 focus:ring-ring sm:text-sm';
+
 interface CustomDatePickerProps {
   value: string;
   onChange: (date: string) => void;
   placeholder?: string;
 }
 
-const CustomDatePicker: React.FC<CustomDatePickerProps> = ({ value, onChange, placeholder = "Select date" }) => {
+const CustomDatePicker: React.FC<CustomDatePickerProps> = ({ value, onChange, placeholder = 'Select date' }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const datePickerRef = useRef<HTMLDivElement>(null);
@@ -40,7 +43,7 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({ value, onChange, pl
     const daysInMonth = lastDay.getDate();
     const startingDayOfWeek = firstDay.getDay();
 
-    const days = [];
+    const days: (number | null)[] = [];
     for (let i = 0; i < startingDayOfWeek; i++) {
       days.push(null);
     }
@@ -75,45 +78,42 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({ value, onChange, pl
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-1 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-500"
+        className="flex items-center gap-2 rounded-md px-3 py-1.5 text-sm text-foreground transition-colors hover:bg-accent focus:outline-none"
       >
-        <Calendar className="h-4 w-4" />
+        <Calendar className="size-4 text-muted-foreground" />
         <span>{formatDate(value)}</span>
       </button>
 
       {isOpen && (
-        <div className="absolute top-full mt-1 left-0 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg p-3 min-w-[280px]">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-3">
+        <div className="absolute left-0 top-full z-50 mt-1 min-w-[280px] rounded-lg border border-border bg-card p-3 shadow-lg">
+          <div className="mb-3 flex items-center justify-between">
             <button
               type="button"
               onClick={handlePrevMonth}
-              className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+              className="p-1 rounded transition-colors hover:bg-accent"
             >
-              <ChevronLeft className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+              <ChevronLeft className="size-4 text-muted-foreground" />
             </button>
-            <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">
+            <h3 className="text-sm font-medium text-foreground">
               {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
             </h3>
             <button
               type="button"
               onClick={handleNextMonth}
-              className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+              className="p-1 rounded transition-colors hover:bg-accent"
             >
-              <ChevronRight className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+              <ChevronRight className="size-4 text-muted-foreground" />
             </button>
           </div>
 
-          {/* Week days */}
-          <div className="grid grid-cols-7 gap-1 mb-2">
-            {weekDays.map(day => (
-              <div key={day} className="text-center text-xs font-medium text-gray-500 dark:text-gray-400 py-1">
+          <div className="mb-2 grid grid-cols-7 gap-1">
+            {weekDays.map((day) => (
+              <div key={day} className="py-1 text-center text-xs font-medium text-muted-foreground">
                 {day}
               </div>
             ))}
           </div>
 
-          {/* Days */}
           <div className="grid grid-cols-7 gap-1">
             {days.map((day, index) => (
               <div key={index} className="aspect-square">
@@ -121,10 +121,12 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({ value, onChange, pl
                   <button
                     type="button"
                     onClick={() => handleDateSelect(day)}
-                    className={`w-full h-full flex items-center justify-center text-sm rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors
-                      ${value === `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-                        ? 'bg-brand-500 text-white hover:bg-brand-600'
-                        : 'text-gray-700 dark:text-gray-300'
+                    className={`flex h-full w-full items-center justify-center rounded text-sm transition-colors
+                      ${
+                        value ===
+                        `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+                          ? 'bg-primary text-primary-foreground'
+                          : 'text-foreground hover:bg-accent'
                       }
                     `}
                   >
@@ -148,13 +150,13 @@ interface SearchBarProps {
 export const SearchBar: React.FC<SearchBarProps> = ({ query, onQueryChange }) => {
   return (
     <div className="relative flex-grow max-w-2xl group">
-      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-        <Search className="h-5 w-5 text-gray-400 group-focus-within:text-brand-600 transition-colors" />
+      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+        <Search className="size-5 text-muted-foreground transition-colors group-focus-within:text-primary" />
       </div>
       <input
         type="text"
-        className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg leading-5 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 sm:text-sm transition-all"
-        placeholder="Search logs (message, trace ID, metadata)..."
+        className="block w-full rounded-lg border border-input bg-background py-2.5 pl-10 pr-3 leading-5 text-foreground placeholder:text-muted-foreground shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-ring sm:text-sm"
+        placeholder="Search logs (message, trace ID, metadata)…"
         value={query}
         onChange={(e) => onQueryChange(e.target.value)}
       />
@@ -169,7 +171,6 @@ interface LogFiltersProps {
 }
 
 export const LogFilters: React.FC<LogFiltersProps> = ({ filters, onFilterChange, availableServices }) => {
-
   const handleChange = (key: keyof ILogFilters, value: any) => {
     onFilterChange({ ...filters, [key]: value });
   };
@@ -180,66 +181,73 @@ export const LogFilters: React.FC<LogFiltersProps> = ({ filters, onFilterChange,
       level: 'ALL',
       service: 'ALL',
       startDate: '',
-      endDate: ''
+      endDate: '',
     });
   };
 
   return (
-    <div className="bg-white dark:bg-dark-surface border-b border-gray-200 dark:border-dark-border p-4 shadow-sm transition-colors duration-200">
-      <div className="flex flex-wrap items-center gap-3">
-
+    <div className="border-b border-border bg-card">
+      <div className="mx-auto flex flex-wrap items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
         {/* Level Select */}
-        <div className="relative min-w-[120px]">
+        <div className="relative min-w-[150px]">
           <select
-            className="appearance-none block w-full pl-3 pr-8 py-2 border border-gray-300 dark:border-gray-600 rounded-md leading-5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500 sm:text-sm cursor-pointer"
+            className={selectClass}
             value={filters.level}
             onChange={(e) => handleChange('level', e.target.value)}
           >
-            {LEVELS.map(l => <option key={l} value={l}>{l === 'ALL' ? 'All Levels' : l}</option>)}
+            {LEVELS.map((l) => (
+              <option key={l} value={l}>
+                {l === 'ALL' ? 'All levels' : l}
+              </option>
+            ))}
           </select>
-          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-            <Filter className="h-4 w-4" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-muted-foreground">
+            <Filter className="size-4" />
           </div>
         </div>
 
         {/* Service Select */}
-        <div className="relative min-w-[150px]">
+        <div className="relative min-w-[170px]">
           <select
-            className="appearance-none block w-full pl-3 pr-8 py-2 border border-gray-300 dark:border-gray-600 rounded-md leading-5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500 sm:text-sm cursor-pointer"
+            className={selectClass}
             value={filters.service}
             onChange={(e) => handleChange('service', e.target.value)}
           >
-            <option value="ALL">All Services</option>
-            {availableServices.map(s => <option key={s} value={s}>{s}</option>)}
+            <option value="ALL">All services</option>
+            {availableServices.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
           </select>
         </div>
 
         {/* Date Range */}
-        <div className="flex items-center gap-2 bg-white dark:bg-gray-900 rounded-md border border-gray-300 dark:border-gray-600 p-1">
-           <CustomDatePicker
-              value={filters.startDate}
-              onChange={(date) => handleChange('startDate', date)}
-              placeholder="Start date"
-           />
-           <span className="text-gray-500 dark:text-gray-400">-</span>
-           <CustomDatePicker
-              value={filters.endDate}
-              onChange={(date) => handleChange('endDate', date)}
-              placeholder="End date"
-           />
+        <div className="flex items-center gap-1 rounded-md border border-border bg-background px-1 py-0.5 shadow-sm">
+          <CustomDatePicker
+            value={filters.startDate}
+            onChange={(date) => handleChange('startDate', date)}
+            placeholder="Start date"
+          />
+          <span className="text-muted-foreground">–</span>
+          <CustomDatePicker
+            value={filters.endDate}
+            onChange={(date) => handleChange('endDate', date)}
+            placeholder="End date"
+          />
         </div>
 
         {/* Clear Button */}
         {(filters.query || filters.level !== 'ALL' || filters.service !== 'ALL' || filters.startDate) && (
-           <button
-              onClick={clearFilters}
-              className="p-2 text-gray-500 hover:text-red-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
-              title="Clear Filters"
-           >
-              <X className="h-5 w-5" />
-           </button>
+          <button
+            onClick={clearFilters}
+            className="inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            title="Clear filters"
+          >
+            <X className="size-4" />
+            Clear
+          </button>
         )}
-
       </div>
     </div>
   );

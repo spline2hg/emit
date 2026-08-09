@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
 import { LogOut, User, ArrowLeft } from 'lucide-react';
+import { Logo } from './Logo';
 
 export const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
@@ -18,72 +19,63 @@ export const ProfilePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-dark-bg">
-      {/* Header */}
-      <header className="bg-white dark:bg-dark-surface border-b border-gray-200 dark:border-dark-border sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-background">
+      <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-3">
             <button
               onClick={() => navigate('/workspaces')}
-              className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+              className="inline-flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              title="Back to workspaces"
             >
-              <ArrowLeft className="h-5 w-5" />
-              <span>Back</span>
+              <ArrowLeft className="size-4" />
             </button>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">Profile</h1>
-            <div className="w-16"></div>
+            <Logo onClick={() => navigate('/')} />
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Profile Card */}
-        <div className="bg-white dark:bg-dark-surface rounded-xl shadow-sm border border-gray-200 dark:border-dark-border">
-          <div className="p-6">
-            {/* Avatar */}
-            <div className="flex justify-center mb-6">
-              <div className="bg-brand-100 dark:bg-brand-900/30 p-4 rounded-full">
-                <User className="h-12 w-12 text-brand-600 dark:text-brand-400" />
-              </div>
+      <main className="mx-auto max-w-xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="rounded-xl border border-border bg-card p-8 shadow-sm">
+          <div className="mb-6 flex justify-center">
+            <div className="flex size-16 items-center justify-center rounded-full bg-secondary">
+              <User className="size-8 text-muted-foreground" />
+            </div>
+          </div>
+
+          <div className="space-y-5">
+            <div className="text-center">
+              <p className="mb-1 text-sm text-muted-foreground">Username</p>
+              <p className="text-2xl font-semibold tracking-tight">
+                {credentials.user.username}
+              </p>
             </div>
 
-            {/* User Info */}
-            <div className="space-y-4">
-              <div className="text-center">
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Username</p>
-                <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                  {credentials.user.username}
-                </p>
-              </div>
-
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Account ID</p>
-                <p className="font-mono text-sm text-gray-800 dark:text-gray-200 break-all">
-                  {credentials.user.id}
-                </p>
-              </div>
-
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Member Since</p>
-                <p className="text-gray-900 dark:text-white">
-                  {credentials.user.created_at
-                    ? new Date(credentials.user.created_at).toLocaleDateString()
-                    : 'N/A'}
-                </p>
-              </div>
+            <div className="border-t border-border pt-5">
+              <p className="mb-2 text-sm text-muted-foreground">Account ID</p>
+              <p className="break-all font-mono text-sm text-foreground">
+                {credentials.user.id}
+              </p>
             </div>
 
-            {/* Logout Button */}
-            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-              <button
-                onClick={handleLogout}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors"
-              >
-                <LogOut className="h-4 w-4" />
-                Logout
-              </button>
+            <div className="border-t border-border pt-5">
+              <p className="mb-2 text-sm text-muted-foreground">Member since</p>
+              <p className="text-foreground">
+                {credentials.user.created_at
+                  ? new Date(credentials.user.created_at).toLocaleDateString()
+                  : 'N/A'}
+              </p>
             </div>
+          </div>
+
+          <div className="mt-8 border-t border-border pt-6">
+            <button
+              onClick={handleLogout}
+              className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-md border border-border bg-background text-sm font-medium text-foreground transition-colors hover:bg-destructive hover:text-white"
+            >
+              <LogOut className="size-4" />
+              Log out
+            </button>
           </div>
         </div>
       </main>
