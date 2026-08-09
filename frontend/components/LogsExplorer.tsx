@@ -8,13 +8,13 @@ import { Database, Loader2 } from 'lucide-react';
 type StorageBackend = BackendType;
 
 interface LogsExplorerProps {
-  workspaceId?: string;
+  apiKey: string;
 }
 
-const LogsExplorer: React.FC<LogsExplorerProps> = ({ workspaceId }) => {
+const LogsExplorer: React.FC<LogsExplorerProps> = ({ apiKey }) => {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(false);
-  const [storageBackend, setStorageBackend] = useState<StorageBackend>('elasticsearch');
+  const [storageBackend, setStorageBackend] = useState<StorageBackend>('sqlite');
   const [availableServices, setAvailableServices] = useState<string[]>([]);
 
   const [filters, setFilters] = useState<LogFilters>({
@@ -32,6 +32,7 @@ const LogsExplorer: React.FC<LogsExplorerProps> = ({ workspaceId }) => {
   });
 
   const loadData = useCallback(async (isBackgroundRefresh = false) => {
+    if (!apiKey) return;
     if (!isBackgroundRefresh) setLoading(true);
     try {
       const { data, total } = await fetchLogs({
@@ -43,8 +44,7 @@ const LogsExplorer: React.FC<LogsExplorerProps> = ({ workspaceId }) => {
         startDate: filters.startDate,
         endDate: filters.endDate,
         backend: storageBackend,
-        workspace_id: workspaceId,
-      });
+      }, apiKey);
 
       setLogs(data);
       setPagination((prev) => ({ ...prev, total }));
@@ -53,12 +53,14 @@ const LogsExplorer: React.FC<LogsExplorerProps> = ({ workspaceId }) => {
     } finally {
       if (!isBackgroundRefresh) setLoading(false);
     }
-  }, [pagination.page, pagination.size, filters, storageBackend, workspaceId]);
+  }, [pagination.page, pagination.size, filters, storageBackend, apiKey]);
 
   useEffect(() => {
     const loadServices = async () => {
+      if (!apiKey) return;
+
       try {
-        const services = await getServices(storageBackend);
+        const services = await getServices(storageBackend, apiKey);
         setAvailableServices(services);
       } catch (error) {
         console.error('Failed to load services:', error);
@@ -67,12 +69,12 @@ const LogsExplorer: React.FC<LogsExplorerProps> = ({ workspaceId }) => {
     };
 
     loadServices();
-  }, [storageBackend]);
+  }, [storageBackend, apiKey]);
 
   useEffect(() => {
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters, pagination.page, storageBackend, workspaceId]);
+  }, [filters, pagination.page, storageBackend, apiKey]);
 
   const handleFilterChange = (newFilters: LogFilters) => {
     setFilters(newFilters);
@@ -89,6 +91,14 @@ const LogsExplorer: React.FC<LogsExplorerProps> = ({ workspaceId }) => {
   };
 
   const totalPages = Math.max(1, Math.ceil(pagination.total / pagination.size));
+
+  if (!apiKey) {
+    return (
+      <div className="flex h-72 items-center justify-center text-sm text-muted-foreground">
+        Loading workspace access...
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-4">

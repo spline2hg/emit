@@ -10,68 +10,66 @@ const Navbar: React.FC = () => {
 
   const navLinks = [
     { label: 'Dashboard', path: '/workspaces' },
-    { label: 'Logs', path: '/logs' },
     { label: 'Profile', path: '/profile' },
   ];
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Logo onClick={() => navigate('/')} />
+    <nav className="fixed top-0 left-0 right-0 z-50">
+      <div className="mx-auto mt-4 max-w-7xl px-4">
+        <div className="flex h-12 items-center justify-between rounded-xl border border-border bg-background/80 px-4 backdrop-blur sm:px-6">
+          {/* Logo — always goes to landing */}
+          <Logo onClick={() => navigate('/')} />
 
-        {/* Desktop Nav */}
-        <div className="hidden md:flex items-center gap-1">
-          {navLinks.map((link) => {
-            const active =
-              location.pathname === link.path ||
-              (link.path === '/workspaces' && location.pathname.startsWith('/workspaces/'));
-            return (
-              <button
-                key={link.path}
-                onClick={() => navigate(link.path)}
-                className={`rounded-md px-3 py-2 text-sm transition-colors ${
-                  active
-                    ? 'bg-accent text-foreground'
-                    : 'text-muted-foreground hover:bg-accent hover:text-foreground'
-                }`}
-              >
-                {link.label}
-              </button>
-            );
-          })}
-        </div>
+          {/* Desktop Nav */}
+          <div className="hidden items-center gap-6 md:flex">
+            {navLinks.map((link) => {
+              const active =
+                location.pathname === link.path ||
+                (link.path === '/workspaces' && location.pathname.startsWith('/workspaces/'));
+              return (
+                <button
+                  key={link.path}
+                  onClick={() => navigate(link.path)}
+                  className={`text-[13px] font-medium tracking-[0.008em] transition-colors ${
+                    active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {link.label}
+                </button>
+              );
+            })}
+          </div>
 
-        {/* Mobile toggle */}
-        <div className="md:hidden">
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="text-muted-foreground hover:text-foreground transition-colors"
-          >
-            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
+          {/* Mobile toggle */}
+          <div className="md:hidden">
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="text-muted-foreground transition-colors hover:text-foreground"
+            >
+              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Mobile menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-border bg-background">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-2">
-            {navLinks.map((link) => (
-              <button
-                key={link.path}
-                onClick={() => {
-                  navigate(link.path);
-                  setMobileMenuOpen(false);
-                }}
-                className="block w-full text-left py-2.5 px-3 rounded-md text-[14px] font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-all"
-              >
-                {link.label}
-              </button>
-            ))}
-          </div>
+        <div className="mx-4 mt-2 flex flex-col gap-2 rounded-xl border border-border bg-background/80 p-4 backdrop-blur md:hidden">
+          {navLinks.map((link) => (
+            <button
+              key={link.path}
+              onClick={() => {
+                navigate(link.path);
+                setMobileMenuOpen(false);
+              }}
+              className="rounded-lg px-3 py-2 text-left text-[14px] font-medium text-muted-foreground transition-all hover:bg-accent hover:text-foreground"
+            >
+              {link.label}
+            </button>
+          ))}
         </div>
       )}
-    </header>
+    </nav>
   );
 };
 

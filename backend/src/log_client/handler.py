@@ -9,7 +9,7 @@ class LogIngestHandler(logging.Handler):
     Sends captured log messages to a specified ingestion URL.
     """
 
-    def __init__(self, ingest_url, service,api_key:str=""):
+    def __init__(self, ingest_url, service, api_key: str = ""):
         super().__init__()
         self.ingest_url = ingest_url
         self.service = service
@@ -26,4 +26,4 @@ class LogIngestHandler(logging.Handler):
                 service=self.service
                 # extra_metadata=self.extra_metadata,
             )
-        send_log(self.ingest_url,self.api_key ,payload)
+        send_log(self.ingest_url, self.api_key, payload)

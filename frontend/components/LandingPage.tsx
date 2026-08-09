@@ -29,12 +29,12 @@ const PILLARS = [
   {
     title: 'Secure by default',
     description:
-      'Every workspace gets its own API keys with OAuth token auth for isolated, auditable log streams.',
+      'Every workspace gets its own key for isolated, auditable log streams.',
   },
 ];
 
 const CURL_EXAMPLE = `curl -X POST http://localhost:8000/ingest \\
-  -H "X-API-Key: your_api_key:your_workspace_id" \\
+  -H "X-API-Key: your_api_key" \\
   -H "Content-Type: application/json" \\
   -d '{
     "message": "User signed in",
@@ -60,7 +60,7 @@ const LandingPage: React.FC = () => {
       <main className="bg-sidebar pb-32">
         <div className="mx-auto max-w-5xl">
           {/* Hero */}
-          <section className="space-y-6 px-4 pb-16 pt-16 text-center sm:pt-24">
+          <section className="space-y-6 px-4 pb-16 pt-24 text-center sm:pt-28">
             <div className="mx-auto w-full max-w-4xl space-y-5">
               <h1 className="text-balance text-center text-[40px] font-semibold leading-[1.1] tracking-tight sm:text-5xl xl:text-6xl">
                 Stream, store and analyze logs — without the plumbing
@@ -78,12 +78,6 @@ const LandingPage: React.FC = () => {
               >
                 Get started
                 <ArrowRight className="size-4" />
-              </button>
-              <button
-                onClick={() => navigate('/logs')}
-                className="h-10 rounded-md border border-border bg-background px-6 text-sm font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-              >
-                Explore logs
               </button>
             </div>
           </section>
@@ -128,7 +122,7 @@ const LandingPage: React.FC = () => {
                       {'\n'}
                       <span className="text-[#79c0ff]">  -H </span>
                       <span className="text-[#ffa657]">&quot;X-API-Key: </span>
-                      <span className="text-[#a5d6ff]">your_api_key:your_workspace_id</span>
+                      <span className="text-[#a5d6ff]">your_api_key</span>
                       <span className="text-[#ffa657]">&quot;</span>
                       <span className="text-[#8b949e]"> \</span>
                       {'\n'}

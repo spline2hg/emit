@@ -24,7 +24,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<AuthUser | null>(null);
 
   useEffect(() => {
-    let interval: ReturnType<typeof setInterval> | undefined;
+    let retryTimer: ReturnType<typeof setTimeout> | undefined;
     let cancelled = false;
 
     const checkHealth = async () => {
@@ -37,24 +37,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     const poll = async () => {
+      if (cancelled) return;
+
       const ok = await checkHealth();
-      if (ok && !cancelled) {
+      if (cancelled) return;
+
+      if (ok) {
         setReady(true);
         return;
       }
-      interval = setInterval(async () => {
-        const ok = await checkHealth();
-        if (ok && !cancelled) {
-          setReady(true);
-          if (interval) clearInterval(interval);
-        }
-      }, 1500);
+
+      retryTimer = setTimeout(poll, 1500);
     };
 
     poll();
     return () => {
       cancelled = true;
-      if (interval) clearInterval(interval);
+      if (retryTimer) clearTimeout(retryTimer);
     };
   }, []);
 

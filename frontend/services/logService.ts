@@ -1,13 +1,15 @@
 import { LogEntry } from '../types';
 import { apiService, FetchLogsParams } from './apiService';
 
-// Use real API service - keeping the same interface for compatibility
-export const fetchLogs = async (params: FetchLogsParams & { workspace_id?: string }): Promise<{ data: LogEntry[], total: number }> => {
+export const fetchLogs = async (
+  params: FetchLogsParams,
+  apiKey: string,
+): Promise<{ data: LogEntry[]; total: number }> => {
   try {
-    const response = await apiService.fetchLogs(params);
+    const response = await apiService.fetchLogs(params, apiKey);
     return {
       data: response.logs,
-      total: response.total
+      total: response.total,
     };
   } catch (error) {
     console.error('Failed to fetch logs:', error);
@@ -15,10 +17,12 @@ export const fetchLogs = async (params: FetchLogsParams & { workspace_id?: strin
   }
 };
 
-// Helper to get available services from API
-export const getServices = async (backend?: string): Promise<string[]> => {
+export const getServices = async (
+  backend: string | undefined,
+  apiKey: string,
+): Promise<string[]> => {
   try {
-    const response = await apiService.getServices(backend);
+    const response = await apiService.getServices(backend, apiKey);
     return response.services;
   } catch (error) {
     console.error('Failed to fetch services:', error);
@@ -26,41 +30,40 @@ export const getServices = async (backend?: string): Promise<string[]> => {
   }
 };
 
-// Helper to ingest a single log
-export const ingestLog = async (logData: {
-  message: string;
-  level: string;
-  service: string;
-  timestamp?: string;
-  metadata?: Record<string, any>;
-}) => {
+export const ingestLog = async (
+  logData: {
+    message: string;
+    level: string;
+    service: string;
+    timestamp?: string;
+    metadata?: Record<string, any>;
+  },
+  apiKey: string,
+) => {
   try {
-    return await apiService.ingestLog(logData);
+    return await apiService.ingestLog(logData, apiKey);
   } catch (error) {
     console.error('Failed to ingest log:', error);
     throw error;
   }
 };
 
-// Helper to ingest logs in batch
-export const ingestLogsBatch = async (logs: Array<{
-  message: string;
-  level: string;
-  service: string;
-  timestamp?: string;
-  metadata?: Record<string, any>;
-}>) => {
+export const ingestLogsBatch = async (
+  logs: Array<{
+    message: string;
+    level: string;
+    service: string;
+    timestamp?: string;
+    metadata?: Record<string, any>;
+  }>,
+  apiKey: string,
+) => {
   try {
-    return await apiService.ingestLogsBatch(logs);
+    return await apiService.ingestLogsBatch(logs, apiKey);
   } catch (error) {
     console.error('Failed to ingest logs batch:', error);
     throw error;
   }
 };
 
-// Re-export the types for backward compatibility
 export type { FetchLogsParams };
-
-
-
-

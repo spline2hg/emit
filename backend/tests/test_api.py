@@ -1,5 +1,6 @@
 import sys
 import os
+from datetime import datetime
 from pathlib import Path
 
 # Make backend/src importable (mirrors sys.path.insert in main.py)
@@ -13,8 +14,8 @@ import pytest
 from fastapi.testclient import TestClient
 
 from main import app
-from db import engine
-from models import Base
+from db import engine, SessionLocal
+from models import Base, LogEntry
 
 
 @pytest.fixture()
@@ -61,7 +62,6 @@ def test_users_me(client):
 def test_create_workspace(client):
     oauth_token, ws = _make_user_and_workspace(client)
     assert ws["name"] == "test-ws"
-    assert ":" in ws["api_key"]  # format: raw_key:workspace_id
 
 
 def test_list_workspaces(client):
@@ -73,26 +73,75 @@ def test_list_workspaces(client):
     assert data["workspaces"][0]["id"] == ws["id"]
 
 
-def test_verify_api_key_rejects_missing(client):
+def test_logs_require_api_key(client):
+    assert client.get("/logs").status_code == 401
+    assert client.get("/logs/services").status_code == 401
+
+
+def test_user_api_key_cannot_access_logs(client):
+    user = client.post("/users").json()
+    response = client.get("/logs", headers={"X-API-Key": user["api_key"]})
+    assert response.status_code == 401
+
+
+def test_logs_are_scoped_by_api_key(client):
+    _, workspace_one = _make_user_and_workspace(client)
+    _, workspace_two = _make_user_and_workspace(client)
+
+    db = SessionLocal()
+    db.add_all([
+        LogEntry(
+            timestamp=datetime.utcnow(),
+            level="INFO",
+            service="service-one",
+            message="belongs to one",
+            workspace_id=workspace_one["id"],
+        ),
+        LogEntry(
+            timestamp=datetime.utcnow(),
+            level="ERROR",
+            service="service-two",
+            message="belongs to two",
+            workspace_id=workspace_two["id"],
+        ),
+    ])
+    db.commit()
+    db.close()
+
+    headers = {"X-API-Key": workspace_one["api_key"]}
+    response = client.get(
+        "/logs",
+        params={"workspace_id": workspace_two["id"]},
+        headers=headers,
+    )
+    assert response.status_code == 200
+    assert response.json()["workspace_id"] == workspace_one["id"]
+    assert [log["message"] for log in response.json()["logs"]] == ["belongs to one"]
+
+    services = client.get("/logs/services", headers=headers)
+    assert services.status_code == 200
+    assert services.json()["services"] == ["service-one"]
+
+
+def test_api_key_rejects_missing(client):
     r = client.post("/ingest", json={"message": "hi", "level": "INFO", "service": "s"})
     assert r.status_code == 401
 
 
-def test_verify_api_key_rejects_malformed(client):
-    # No colon -> should be 400, not 500
+def test_api_key_rejects_invalid(client):
     r = client.post(
         "/ingest",
         json={"message": "hi", "level": "INFO", "service": "s"},
-        headers={"X-API-Key": "nocolonhere"},
+        headers={"X-API-Key": "not-a-valid-key"},
     )
-    assert r.status_code == 400
+    assert r.status_code == 401
 
 
-def test_verify_api_key_rejects_bad_key(client):
+def test_api_key_rejects_bad_key(client):
     oauth_token, ws = _make_user_and_workspace(client)
     r = client.post(
         "/ingest",
         json={"message": "hi", "level": "INFO", "service": "s"},
-        headers={"X-API-Key": f"wrongkey:{ws['id']}"},
+        headers={"X-API-Key": "not-a-valid-key"},
     )
     assert r.status_code == 401

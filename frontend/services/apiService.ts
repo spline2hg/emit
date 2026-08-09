@@ -18,10 +18,12 @@ export interface LogsResponse {
   page: number;
   size: number;
   total_pages: number;
+  workspace_id: string;
 }
 
 export interface ServicesResponse {
   services: string[];
+  workspace_id: string;
 }
 
 const API_BASE_URL = BACKEND_URL;
@@ -33,7 +35,11 @@ class ApiService {
     this.baseUrl = baseUrl;
   }
 
-  private async request<T>(endpoint: string, params?: Record<string, any>): Promise<T> {
+  private async request<T>(
+    endpoint: string,
+    params?: Record<string, any>,
+    apiKey?: string,
+  ): Promise<T> {
     const url = new URL(`${this.baseUrl}${endpoint}`);
 
     if (params) {
@@ -45,7 +51,9 @@ class ApiService {
     }
 
     try {
-      const response = await fetch(url.toString());
+      const response = await fetch(url.toString(), {
+        headers: apiKey ? { 'X-API-Key': apiKey } : undefined,
+      });
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -61,8 +69,7 @@ class ApiService {
     }
   }
 
-  async fetchLogs(params: FetchLogsParams & { workspace_id?: string }): Promise<LogsResponse> {
-    // Convert date format from frontend to backend
+  async fetchLogs(params: FetchLogsParams, apiKey: string): Promise<LogsResponse> {
     const apiParams: Record<string, any> = {
       page: params.page,
       size: params.size,
@@ -74,34 +81,36 @@ class ApiService {
     if (params.startDate) apiParams.from_ts = params.startDate;
     if (params.endDate) apiParams.to_ts = params.endDate;
     if (params.backend) apiParams.backend = params.backend;
-    if (params.workspace_id) apiParams.workspace_id = params.workspace_id;
 
-    return await this.request<LogsResponse>('/logs', apiParams);
+    return this.request<LogsResponse>('/logs', apiParams, apiKey);
   }
 
-  async getServices(backend?: string): Promise<ServicesResponse> {
+  async getServices(backend: string | undefined, apiKey: string): Promise<ServicesResponse> {
     const params: Record<string, any> = {};
-    if (backend && backend !== 's3') params.backend = backend; // S3 doesn't have services endpoint yet
+    if (backend && backend !== 's3') params.backend = backend;
 
     if (backend === 's3') {
-      // Return empty services for S3 for now
-      return { services: [] };
+      return { services: [], workspace_id: '' };
     }
 
-    return this.request<ServicesResponse>('/logs/services', params);
+    return this.request<ServicesResponse>('/logs/services', params, apiKey);
   }
 
-  async ingestLog(logData: {
-    message: string;
-    level: string;
-    service: string;
-    timestamp?: string;
-    metadata?: Record<string, any>;
-  }): Promise<{ status: string; message: string; timestamp: string }> {
+  async ingestLog(
+    logData: {
+      message: string;
+      level: string;
+      service: string;
+      timestamp?: string;
+      metadata?: Record<string, any>;
+    },
+    apiKey: string,
+  ): Promise<{ status: string; message: string; timestamp: string }> {
     const response = await fetch(`${this.baseUrl}/ingest`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-API-Key': apiKey,
       },
       body: JSON.stringify(logData),
     });
@@ -114,17 +123,21 @@ class ApiService {
     return response.json();
   }
 
-  async ingestLogsBatch(logs: Array<{
-    message: string;
-    level: string;
-    service: string;
-    timestamp?: string;
-    metadata?: Record<string, any>;
-  }>): Promise<{ status: string; message: string; queued: number; failed: number }> {
+  async ingestLogsBatch(
+    logs: Array<{
+      message: string;
+      level: string;
+      service: string;
+      timestamp?: string;
+      metadata?: Record<string, any>;
+    }>,
+    apiKey: string,
+  ): Promise<{ status: string; message: string; queued: number; failed: number }> {
     const response = await fetch(`${this.baseUrl}/ingest/batch`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-API-Key': apiKey,
       },
       body: JSON.stringify(logs),
     });
@@ -138,8 +151,5 @@ class ApiService {
   }
 }
 
-// Export singleton instance
 export const apiService = new ApiService();
-
-// Export class for testing or custom instances
 export { ApiService };

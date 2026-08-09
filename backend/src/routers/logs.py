@@ -1,8 +1,9 @@
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from storage_factory import get_storage_backend
+from utils import verify_api_key
 
 router = APIRouter()
 
@@ -14,7 +15,6 @@ async def get_logs(
         None, pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL|ALL)$"
     ),
     service: Optional[str] = Query(None, description="Filter by service name"),
-    workspace_id: Optional[str] = Query(None, description="Filter by workspace ID"),
     backend: Optional[str] = Query(
         None, pattern="^(sqlite|elasticsearch|s3)$"
     ),
@@ -22,8 +22,9 @@ async def get_logs(
     to_ts: Optional[str] = Query(None, description="End timestamp ISO 8601"),
     page: int = Query(1, ge=1),
     size: int = Query(50, ge=1, le=1000),
+    auth_info: dict = Depends(verify_api_key),
 ):
-    """Query logs with filters and pagination."""
+    """Query logs belonging only to the workspace in the workspace key."""
     try:
         storage = get_storage_backend(backend_name=backend)
         result = storage.query_logs(
@@ -34,7 +35,7 @@ async def get_logs(
             to_ts=to_ts,
             page=page,
             size=size,
-            workspace_id=workspace_id,
+            workspace_id=auth_info["workspace_id"],
         )
         return {
             "logs": result.get("logs", []),
@@ -42,6 +43,7 @@ async def get_logs(
             "page": result.get("page", page),
             "size": result.get("size", size),
             "total_pages": result.get("total_pages", 0),
+            "workspace_id": auth_info["workspace_id"],
         }
     except Exception as e:
         raise HTTPException(
@@ -55,11 +57,17 @@ def get_services(
     backend: Optional[str] = Query(
         None, pattern="^(sqlite|elasticsearch|s3)$"
     ),
+    auth_info: dict = Depends(verify_api_key),
 ):
-    """Get available service names from logs."""
+    """List services belonging only to the workspace in the workspace key."""
     try:
         storage = get_storage_backend(backend_name=backend)
-        return {"services": storage.get_unique_services()}
+        return {
+            "services": storage.get_unique_services(
+                workspace_id=auth_info["workspace_id"]
+            ),
+            "workspace_id": auth_info["workspace_id"],
+        }
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

@@ -4,7 +4,6 @@ import { Loader2, Activity, Zap } from 'lucide-react';
 import LandingPage from './components/LandingPage';
 import Dashboard from './components/Dashboard';
 import WorkspaceView from './components/WorkspaceView';
-import LogsPage from './components/LogsPage';
 import ProfilePage from './components/ProfilePage';
 import Navbar from './components/Navbar';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -20,7 +19,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Navbar />
-      <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">{children}</main>
+      <main className="mx-auto max-w-7xl px-4 pb-10 pt-24 sm:px-6 lg:px-8">{children}</main>
     </div>
   );
 }
@@ -97,15 +96,6 @@ function App() {
             element={
               <ProtectedRoute>
                 <WorkspaceView />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/logs"
-            element={
-              <ProtectedRoute>
-                <LogsPage />
               </ProtectedRoute>
             }
           />

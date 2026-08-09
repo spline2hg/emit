@@ -42,8 +42,8 @@ class StorageBackend(ABC):
         pass
     
     @abstractmethod
-    def get_unique_services(self) -> List[str]:
-        pass    
+    def get_unique_services(self, workspace_id: str | None = None) -> List[str]:
+        pass
 
 class SQLiteStorage(StorageBackend):
     """SQLite storage backend"""
@@ -200,15 +200,18 @@ class SQLiteStorage(StorageBackend):
                 "total_pages": 0
             }
 
-    def get_unique_services(self) -> List[str]:
-        """Get all unique service names from SQLite"""
+    def get_unique_services(self, workspace_id: str | None = None) -> List[str]:
+        """Get unique service names for one workspace from SQLite."""
         try:
             from models import LogEntry
 
             db = self.session_factory()
             try:
-                # Query distinct services
-                services = db.query(LogEntry.service).distinct().all()
+                # Query distinct services within the authenticated workspace.
+                query = db.query(LogEntry.service)
+                if workspace_id:
+                    query = query.filter(LogEntry.workspace_id == workspace_id)
+                services = query.distinct().all()
 
                 # Extract service names from tuples and sort
                 service_list = sorted([service[0] for service in services if service[0]])
@@ -410,12 +413,15 @@ class ElasticsearchStorage(StorageBackend):
             }
     
 
-    def get_unique_services(self) -> List[str]:
-        """Get all unique service names using terms aggregation"""
+    def get_unique_services(self, workspace_id: str | None = None) -> List[str]:
+        """Get unique service names for one workspace using terms aggregation."""
         try:
             from elasticsearch.dsl import Search, A
 
             s = Search(using=self.es, index=self.index_name)
+
+            if workspace_id:
+                s = s.query('term', workspace_id__keyword=workspace_id)
 
             # Add terms aggregation for service field
             s.aggs.bucket('services', 'terms', field='service.keyword', size=1000)
@@ -750,14 +756,15 @@ class S3CompatibleStorage(StorageBackend):
                 "total_pages": 0
             }
 
-    def get_unique_services(self) -> List[str]:
-        """Get all unique service names from S3 metadata"""
+    def get_unique_services(self, workspace_id: str | None = None) -> List[str]:
+        """Get unique service names for one workspace from S3 metadata."""
         try:
             services = set()
 
             # List all objects and collect service names from metadata
             paginator = self.s3_client.get_paginator('list_objects_v2')
-            pages = paginator.paginate(Bucket=self.bucket_name, Prefix=self.prefix)
+            list_prefix = f"{self.prefix}/{workspace_id}" if workspace_id else self.prefix
+            pages = paginator.paginate(Bucket=self.bucket_name, Prefix=list_prefix)
 
             for page in pages:
                 if 'Contents' not in page:

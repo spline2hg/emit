@@ -38,7 +38,7 @@ def build_payload(record, service: str) -> dict:
     return payload 
 
 
-def send_log(url: str, api_key:str, payload: dict, timeout: int = 2):
+def send_log(url: str, api_key: str, payload: dict, timeout: int = 2):
     try:
         headers = {
             "X-API-Key": api_key

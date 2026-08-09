@@ -6,33 +6,28 @@ from hashlib import sha256
 import random
 import secrets
 
-def verify_api_key(x_api_key: str = Header(None, alias="X-API-Key")):
-    if not x_api_key:
+def verify_api_key(
+    api_key: str = Header(None, alias="X-API-Key"),
+):
+    """Authenticate a request with an opaque workspace API key."""
+    if not api_key:
         raise HTTPException(status_code=401, detail="API key required")
-        
-    try:
-        api_key, workspace_id = x_api_key.split(":")
-    except ValueError:
-        raise HTTPException(
-            status_code=400,
-            detail="Malformed API key. Expected format: <api_key>:<workspace_id>",
-        )
+
     db: Session = SessionLocal()
     try:
         api_key_hash = sha256(api_key.encode()).hexdigest()
-
         workspace = db.query(Workspace).filter(
-            Workspace.id == workspace_id,
             Workspace.api_key_hash == api_key_hash
         ).first()
 
         if not workspace:
             raise HTTPException(status_code=401, detail="Invalid API key")
 
-        # Return both workspace_id and the api_key for downstream use
+        # The key resolves to the workspace and, through it, its owner.
         return {
-            "workspace_id": workspace_id,
-            "api_key": api_key
+            "workspace_id": str(workspace.id),
+            "owner_id": str(workspace.owner_id),
+            "api_key": api_key,
         }
 
     except HTTPException:

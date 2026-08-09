@@ -81,7 +81,7 @@ const WorkspaceView: React.FC = () => {
   }, [id]);
 
   useEffect(() => {
-    if (activeTab === 'settings' && !apiKey) loadApiKey();
+    if ((activeTab === 'settings' || activeTab === 'logs') && !apiKey) loadApiKey();
   }, [activeTab, apiKey, loadApiKey]);
 
   const handleRotate = async () => {
@@ -272,7 +272,7 @@ const WorkspaceView: React.FC = () => {
         )}
 
         {activeTab === 'logs' && (
-          <LogsExplorer workspaceId={workspace.id} />
+          <LogsExplorer apiKey={apiKey} />
         )}
 
         {activeTab === 'settings' && (
@@ -349,7 +349,7 @@ const WorkspaceView: React.FC = () => {
                     </button>
                   </div>
                   <p className="mt-2 text-xs text-muted-foreground">
-                    Format: <code className="rounded bg-secondary px-1 py-0.5">raw_api_key:workspace_id</code>
+                    Format: <code className="rounded bg-secondary px-1 py-0.5">api_key</code>
                   </p>
                 </div>
 

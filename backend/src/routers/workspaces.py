@@ -28,8 +28,8 @@ async def create_workspace(
                 detail="Invalid OAuth token. User not found.",
             )
 
-        raw_api_key = generate_api_key()
-        api_key_hash = sha256(raw_api_key.encode()).hexdigest()
+        api_key = generate_api_key()
+        api_key_hash = sha256(api_key.encode()).hexdigest()
 
         new_workspace = Workspace(
             name=workspace_data.name,
@@ -41,13 +41,11 @@ async def create_workspace(
         db.commit()
         db.refresh(new_workspace)
 
-        formatted_api_key = f"{raw_api_key}:{str(new_workspace.id)}"
-
         return WorkspaceCreateResponse(
             id=str(new_workspace.id),
             name=new_workspace.name,
             description=new_workspace.description,
-            api_key=formatted_api_key,
+            api_key=api_key,
             owner_id=str(new_workspace.owner_id),
             created_at=new_workspace.created_at,
         )
@@ -126,15 +124,13 @@ async def get_workspace_api_key(
                 detail="Workspace not found.",
             )
 
-        raw_api_key = generate_api_key()
-        workspace.api_key_hash = sha256(raw_api_key.encode()).hexdigest()
+        api_key = generate_api_key()
+        workspace.api_key_hash = sha256(api_key.encode()).hexdigest()
         db.commit()
-
-        formatted_api_key = f"{raw_api_key}:{str(workspace.id)}"
 
         return {
             "workspace_id": str(workspace.id),
-            "api_key": formatted_api_key,
+            "api_key": api_key,
             "message": "New API key generated. Previous key has been invalidated.",
         }
     except HTTPException:
