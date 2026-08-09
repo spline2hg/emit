@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from db import engine
 from models import Base
-from config import Config
+from config import Config, kafka_client_options
 from storage_factory import get_storage_backend
 
 # Configure logging - reduce Kafka noise
@@ -49,7 +49,8 @@ class KafkaLogConsumer:
                 group_id=self.group_id,
                 value_deserializer=lambda x: json.loads(x.decode('utf-8')),
                 key_deserializer=lambda x: x.decode('utf-8') if x else None,
-                max_poll_records=100
+                max_poll_records=100,
+                **kafka_client_options(),
             )
             logger.info("Kafka consumer initialized successfully")
         except Exception as e:

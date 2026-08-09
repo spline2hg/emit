@@ -19,5 +19,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf 
         "requests>=2.32.5"
 
 COPY src ./src
+COPY start.sh ./start.sh
+RUN chmod +x ./start.sh
 
 EXPOSE 8000
+CMD ["./start.sh"]

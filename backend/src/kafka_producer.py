@@ -3,6 +3,8 @@ import json
 import logging
 from typing import Dict, Any
 
+from config import Config, kafka_client_options
+
 # Configure logging for kafka
 logging.getLogger('kafka').setLevel(logging.WARNING)
 logging.basicConfig(
@@ -20,7 +22,8 @@ class KafkaLogProducer:
                 value_serializer=lambda v: json.dumps(v).encode('utf-8'),
                 key_serializer=lambda k: k.encode('utf-8') if k else None,
                 retries=3,
-                acks='all'
+                acks='all',
+                **kafka_client_options(),
             )
             logger.info("Kafka producer initialized successfully")
         except Exception as e:
@@ -63,7 +66,6 @@ def get_kafka_producer() -> KafkaLogProducer:
     """Get or create Kafka producer instance"""
     global kafka_producer
     if kafka_producer is None:
-        from config import Config
         kafka_producer = KafkaLogProducer(
             bootstrap_servers=Config.KAFKA_BOOTSTRAP_SERVERS,
             topic=Config.KAFKA_TOPIC,
