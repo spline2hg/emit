@@ -119,7 +119,7 @@ const LogRow: React.FC<{ log: LogEntry }> = ({ log }) => {
 export const LogTable: React.FC<LogTableProps> = ({ logs, loading }) => {
   if (loading && logs.length === 0) {
     return (
-      <div className="flex h-96 w-full items-center justify-center text-muted-foreground">
+      <div className="flex h-full min-h-48 w-full items-center justify-center text-muted-foreground">
         <div className="flex flex-col items-center gap-2">
           <Loader2 className="size-6 animate-spin text-muted-foreground" />
           <p className="text-sm">Loading logs…</p>
@@ -130,8 +130,8 @@ export const LogTable: React.FC<LogTableProps> = ({ logs, loading }) => {
 
   if (logs.length === 0) {
     return (
-      <div className="flex h-96 w-full flex-col items-center justify-center gap-2 text-muted-foreground">
-        <Activity className="size-8 opacity-40" />
+      <div className="flex h-full min-h-48 w-full flex-col items-center justify-center gap-2 text-muted-foreground">
+        <Activity className="size-10 opacity-40" />
         <p className="text-sm">No logs found matching your criteria.</p>
       </div>
     );

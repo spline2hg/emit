@@ -1,6 +1,11 @@
 import { LogEntry } from '../types';
 import { apiService, FetchLogsParams } from './apiService';
 
+export const getStorageBackends = async (apiKey: string): Promise<string[]> => {
+  const response = await apiService.getStorageBackends(apiKey);
+  return response.backends;
+};
+
 export const fetchLogs = async (
   params: FetchLogsParams,
   apiKey: string,

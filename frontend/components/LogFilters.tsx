@@ -152,7 +152,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ query, onQueryChange }) =>
       </div>
       <input
         type="text"
-        className="block w-full rounded-lg border border-input bg-background py-2.5 pl-10 pr-3 leading-5 text-foreground shadow-sm placeholder:text-muted-foreground focus:border-transparent focus:outline-none focus:ring-2 focus:ring-ring sm:text-sm"
+        className="block w-full rounded-lg border border-input bg-background py-2 pl-10 pr-3 leading-5 text-foreground shadow-sm placeholder:text-muted-foreground focus:border-transparent focus:outline-none focus:ring-2 focus:ring-ring sm:text-sm"
         placeholder="Search logs (message, trace ID, metadata)…"
         value={query}
         onChange={(e) => onQueryChange(e.target.value)}
@@ -165,9 +165,10 @@ interface LogFiltersProps {
   filters: ILogFilters;
   onFilterChange: (newFilters: ILogFilters) => void;
   availableServices: string[];
+  right?: React.ReactNode;
 }
 
-export const LogFilters: React.FC<LogFiltersProps> = ({ filters, onFilterChange, availableServices }) => {
+export const LogFilters: React.FC<LogFiltersProps> = ({ filters, onFilterChange, availableServices, right }) => {
   const handleChange = (key: keyof ILogFilters, value: any) => {
     onFilterChange({ ...filters, [key]: value });
   };
@@ -187,7 +188,7 @@ export const LogFilters: React.FC<LogFiltersProps> = ({ filters, onFilterChange,
 
   return (
     <div className="border-b border-border bg-card">
-      <div className="flex flex-wrap items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
+      <div className="flex flex-wrap items-center gap-3 px-4 py-2 sm:px-6">
         {/* Level Select */}
         <div className="relative min-w-[150px]">
           <select
@@ -248,6 +249,9 @@ export const LogFilters: React.FC<LogFiltersProps> = ({ filters, onFilterChange,
             Clear
           </button>
         )}
+
+        {/* Right slot (e.g. pagination) */}
+        {right && <div className="ml-auto flex items-center">{right}</div>}
       </div>
     </div>
   );

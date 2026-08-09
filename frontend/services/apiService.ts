@@ -26,6 +26,11 @@ export interface ServicesResponse {
   workspace_id: string;
 }
 
+export interface StorageBackendsResponse {
+  backends: string[];
+  default_backend: string;
+}
+
 const API_BASE_URL = BACKEND_URL;
 
 class ApiService {
@@ -67,6 +72,10 @@ class ApiService {
       }
       throw new Error('Network request failed');
     }
+  }
+
+  async getStorageBackends(apiKey: string): Promise<StorageBackendsResponse> {
+    return this.request<StorageBackendsResponse>('/logs/backends', undefined, apiKey);
   }
 
   async fetchLogs(params: FetchLogsParams, apiKey: string): Promise<LogsResponse> {

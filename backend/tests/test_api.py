@@ -76,6 +76,7 @@ def test_list_workspaces(client):
 def test_logs_require_api_key(client):
     assert client.get("/logs").status_code == 401
     assert client.get("/logs/services").status_code == 401
+    assert client.get("/logs/backends").status_code == 401
 
 
 def test_user_api_key_cannot_access_logs(client):
@@ -121,6 +122,17 @@ def test_logs_are_scoped_by_api_key(client):
     services = client.get("/logs/services", headers=headers)
     assert services.status_code == 200
     assert services.json()["services"] == ["service-one"]
+
+    backends = client.get("/logs/backends", headers=headers)
+    assert backends.status_code == 200
+    assert backends.json() == {"backends": ["sqlite"], "default_backend": "sqlite"}
+
+    unavailable = client.get(
+        "/logs?backend=elasticsearch",
+        headers=headers,
+    )
+    assert unavailable.status_code == 409
+    assert "not configured" in unavailable.json()["detail"]
 
 
 def test_api_key_rejects_missing(client):
