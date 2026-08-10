@@ -42,6 +42,12 @@ class Config:
     S3_REGION = os.getenv('S3_REGION', 'us-east-1')
     S3_PREFIX = os.getenv('S3_PREFIX', 'logs')
 
+    # LLM settings (OpenAI-compatible endpoint)
+    LLM_MODEL = os.getenv('LLM_MODEL')
+    LLM_BASE_URL = os.getenv('LLM_BASE_URL', None)
+    LLM_API_KEY = os.getenv('LLM_API_KEY', None)
+    LLM_TEMPERATURE = float(os.getenv('LLM_TEMPERATURE', '0.2'))
+
 
 def kafka_client_options() -> dict:
     """Build kafka-python TLS/SASL options from environment variables."""
