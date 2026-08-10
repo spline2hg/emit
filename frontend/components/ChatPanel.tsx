@@ -65,6 +65,30 @@ function formatValue(value: unknown): string {
   }
 }
 
+// Pretty-print a tool-call result as indented JSON. Objects are stringified
+// directly; JSON-encoded strings are parsed and re-indented; plain strings
+// (error text, etc.) are returned as-is. Returns '' for empty results.
+function formatResult(value: unknown): string {
+  if (value === undefined || value === null) return '';
+  if (typeof value === 'object') {
+    try {
+      return JSON.stringify(value, null, 2);
+    } catch {
+      return String(value);
+    }
+  }
+  const str = String(value);
+  try {
+    const parsed = JSON.parse(str);
+    if (parsed !== null && typeof parsed === 'object') {
+      return JSON.stringify(parsed, null, 2);
+    }
+  } catch {
+    // not JSON — fall through and return the raw string
+  }
+  return str;
+}
+
 function toolPayload(event: ChatEvent): ChatToolEvent | null {
   return typeof event.content === 'object' && event.content !== null
     ? (event.content as ChatToolEvent)
@@ -72,18 +96,18 @@ function toolPayload(event: ChatEvent): ChatToolEvent | null {
 }
 
 function savedToolSteps(toolCalls: SavedToolCall[]): ThinkingStepData[] {
-  return toolCalls.map((call) => ({
-    id: call.id,
-    icon: toolIcon(call.tool_name),
-    label: call.tool_name,
-    description: `Arguments: ${formatValue(call.arguments)}`,
-    status: call.status === 'running' ? 'active' : 'complete',
-    details: [
-      `Arguments:\n${formatValue(call.arguments)}`,
-      ...(call.result ? [`Result:\n${call.result}`] : []),
-    ],
-    detailSummary: call.result ? 'Tool call and result' : 'Tool call',
-  }));
+  return toolCalls.map((call) => {
+    const result = call.result ? formatResult(call.result) : '';
+    return {
+      id: call.id,
+      icon: toolIcon(call.tool_name),
+      label: call.tool_name,
+      description: `Arguments: ${formatValue(call.arguments)}`,
+      status: call.status === 'running' ? 'active' : 'complete',
+      details: result ? [result] : undefined,
+      detailSummary: result ? 'Tool call result' : undefined,
+    };
+  });
 }
 
 export default function ChatPanel({ workspaceKey }: ChatPanelProps) {
@@ -112,29 +136,6 @@ export default function ChatPanel({ workspaceKey }: ChatPanelProps) {
         const list = await getChatSessions(workspaceKey);
         if (cancelled) return;
         setChatSessions(list);
-        if (list.length > 0) {
-          const latest = await getChatTranscript(workspaceKey, list[0].id);
-          if (cancelled) return;
-          setSessionId(latest.session_id);
-          const callsByTurn = new Map<string, SavedToolCall[]>();
-          latest.tool_calls.forEach((call) => {
-            if (!call.turn_id) return;
-            callsByTurn.set(call.turn_id, [...(callsByTurn.get(call.turn_id) || []), call]);
-          });
-          setMessages(
-            latest.messages.map((message) => ({
-              id: message.id,
-              turnId: message.turn_id,
-              text: message.content,
-              files: [],
-              from: message.role,
-              thinkingSteps:
-                message.role === 'assistant'
-                  ? savedToolSteps(callsByTurn.get(message.turn_id || '') || [])
-                  : undefined,
-            })),
-          );
-        }
       } catch (caught) {
         if (!cancelled) setError(caught instanceof Error ? caught.message : 'Could not load chat history');
       } finally {
@@ -242,8 +243,8 @@ export default function ChatPanel({ workspaceKey }: ChatPanelProps) {
             label: name,
             description: `Arguments: ${formatValue(payload.arguments)}`,
             status: 'active',
-            details: [`Arguments:\n${formatValue(payload.arguments)}`],
-            detailSummary: 'Tool call',
+            details: undefined,
+            detailSummary: undefined,
           },
         ]);
         return;
@@ -260,11 +261,12 @@ export default function ChatPanel({ workspaceKey }: ChatPanelProps) {
         if (index === -1) return;
         const next = [...liveSteps];
         const step = next[index];
+        const resultText = formatResult(payload.result);
         next[index] = {
           ...step,
           status: 'complete',
-          details: [...(step.details || []), `Result:\n${formatValue(payload.result)}`],
-          detailSummary: 'Tool call and result',
+          details: resultText ? [resultText] : undefined,
+          detailSummary: resultText ? 'Tool call result' : undefined,
         };
         updateSteps(next);
         return;
@@ -392,7 +394,7 @@ export default function ChatPanel({ workspaceKey }: ChatPanelProps) {
                               status={step.status}
                               isLast={index === message.thinkingSteps!.length - 1}
                             >
-                              {step.details && step.detailSummary && (
+                              {step.details?.length && step.detailSummary && (
                                 <ThinkingStepDetails summary={step.detailSummary} details={step.details} />
                               )}
                             </ThinkingStep>
@@ -426,7 +428,7 @@ export default function ChatPanel({ workspaceKey }: ChatPanelProps) {
                             status={step.status}
                             isLast={index === currentSteps.length - 1}
                           >
-                            {step.details && step.detailSummary && (
+                            {step.details?.length && step.detailSummary && (
                               <ThinkingStepDetails summary={step.detailSummary} details={step.details} />
                             )}
                           </ThinkingStep>

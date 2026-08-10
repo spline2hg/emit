@@ -443,7 +443,7 @@ function ThinkingStepDetails({
           {details?.map((item, i) => (
             <span
               key={i}
-              className="text-[12px] text-muted-foreground leading-snug"
+              className="text-[13px] text-muted-foreground leading-snug"
             >
               {item}
             </span>

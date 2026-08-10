@@ -265,6 +265,23 @@ class SessionStore:
             if call is not None and call.session_id != session_id:
                 return
             if call is None:
+                # CrewAI's finished-event id often differs from the started-event
+                # id stored as the row's primary key, so the lookup above can
+                # miss. Fall back to the most recent still-running call for this
+                # tool in the same turn/session — that is the call this result
+                # belongs to.
+                query = (
+                    db.query(ChatToolCall)
+                    .filter(
+                        ChatToolCall.session_id == session_id,
+                        ChatToolCall.tool_name == str(tool.get("name", "tool")),
+                        ChatToolCall.status == "running",
+                    )
+                )
+                if turn_id is not None:
+                    query = query.filter(ChatToolCall.turn_id == turn_id)
+                call = query.order_by(ChatToolCall.created_at.desc()).first()
+            if call is None:
                 if not call_id:
                     return
                 arguments = tool.get("arguments")
