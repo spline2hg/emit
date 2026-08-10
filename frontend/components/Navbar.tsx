@@ -15,8 +15,8 @@ const Navbar: React.FC = () => {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50">
-      <div className="mx-auto mt-4 max-w-7xl px-4">
-        <div className="flex h-12 items-center justify-between rounded-xl border border-border bg-background/80 px-4 backdrop-blur sm:px-6">
+      <div className="mx-auto max-w-7xl px-4 pt-2">
+        <div className="flex h-11 items-center justify-between rounded-xl border border-border/50 px-4 sm:px-6">
           {/* Logo — always goes to landing */}
           <Logo onClick={() => navigate('/')} />
 
