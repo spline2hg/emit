@@ -20,10 +20,11 @@ import {
   Database,
 } from 'lucide-react';
 import LogsExplorer from './LogsExplorer';
+import ChatPanel from './ChatPanel';
 import { useAuth } from '../context/AuthContext';
 import { BACKEND_URL } from '../services/config';
 
-type Tab = 'overview' | 'logs' | 'settings';
+type Tab = 'overview' | 'logs' | 'chat' | 'settings';
 
 const maskKey = (key: string) => {
   if (!key) return '*****';
@@ -186,6 +187,7 @@ const WorkspaceView: React.FC = () => {
   const tabs: { id: Tab; label: string }[] = [
     { id: 'overview', label: 'Overview' },
     { id: 'logs', label: 'Logs' },
+    { id: 'chat', label: 'Chat' },
     { id: 'settings', label: 'Settings' },
   ];
 
@@ -229,7 +231,7 @@ const WorkspaceView: React.FC = () => {
   return (
     <div
       className={
-        activeTab === 'logs'
+        activeTab === 'logs' || activeTab === 'chat'
           ? 'flex h-[calc(100vh-7rem)] min-h-[520px] flex-col gap-6'
           : 'flex flex-col gap-8'
       }
@@ -296,15 +298,38 @@ const WorkspaceView: React.FC = () => {
                     {copiedField === 'quickstart-curl' ? <Check size={13} className="text-green-400" /> : <Copy size={13} />}
                     {copiedField === 'quickstart-curl' ? 'Copied' : 'Copy'}
                   </button>
-                  <pre className="overflow-x-auto p-4 font-mono text-xs leading-relaxed text-foreground">
-{`curl -X POST ${BACKEND_URL}/ingest \\
-  -H "X-API-Key: YOUR_API_KEY" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "message": "Hello from my service",
-    "level": "INFO",
-    "service": "my-service"
-  }'`}
+                  <pre className="overflow-x-auto p-4 font-mono text-xs leading-relaxed">
+                    <code>
+                      <span className="text-[#ff7b72]">curl -X POST </span>
+                      <span className="text-[#a5d6ff]">{BACKEND_URL}/ingest</span>
+                      <span className="text-[#8b949e]">\</span>
+                      {'\n'}
+                      <span className="text-[#79c0ff]">  -H </span>
+                      <span className="text-[#ffa657]">&quot;X-API-Key: </span>
+                      <span className="text-[#a5d6ff]">YOUR_API_KEY</span>
+                      <span className="text-[#ffa657]">&quot;</span>
+                      <span className="text-[#8b949e]"> \</span>
+                      {'\n'}
+                      <span className="text-[#79c0ff]">  -H </span>
+                      <span className="text-[#a5d6ff]">&quot;Content-Type: application/json&quot;</span>
+                      <span className="text-[#8b949e]"> \</span>
+                      {'\n'}
+                      <span className="text-[#79c0ff]">  -d </span>
+                      <span className="text-[#c9d1d9]">&apos;{'{'}</span>
+                      {'\n'}
+                      <span className="text-[#d2a8ff]">    &quot;message&quot;: </span>
+                      <span className="text-[#a5d6ff]">&quot;Hello from my service&quot;</span>
+                      <span className="text-[#8b949e]">,</span>
+                      {'\n'}
+                      <span className="text-[#d2a8ff]">    &quot;level&quot;: </span>
+                      <span className="text-[#a5d6ff]">&quot;INFO&quot;</span>
+                      <span className="text-[#8b949e]">,</span>
+                      {'\n'}
+                      <span className="text-[#d2a8ff]">    &quot;service&quot;: </span>
+                      <span className="text-[#a5d6ff]">&quot;my-service&quot;</span>
+                      {'\n'}
+                      <span className="text-[#c9d1d9]">  {'}'}&apos;</span>
+                    </code>
                   </pre>
                 </div>
                 <p className="mt-3 text-xs text-muted-foreground">
@@ -352,6 +377,11 @@ const WorkspaceView: React.FC = () => {
             workspaceKey={apiKey}
           />
         </div>
+      )}
+
+      {/* Chat */}
+      {activeTab === 'chat' && (
+        <ChatPanel key={workspace.id} workspaceKey={apiKey} />
       )}
 
       {activeTab === 'settings' && (
