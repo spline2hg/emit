@@ -51,3 +51,55 @@ class Workspace(Base):
 
     def __repr__(self):
         return f"<Workspace {self.name}>"
+
+
+class ChatSession(Base):
+    __tablename__ = "chat_sessions"
+
+    id = Column(String, primary_key=True)
+    workspace_id = Column(String, ForeignKey("workspaces.id"), nullable=False, index=True)
+    owner_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    messages = relationship(
+        "ChatMessage",
+        back_populates="session",
+        cascade="all, delete-orphan",
+        order_by="ChatMessage.created_at",
+    )
+    tool_calls = relationship(
+        "ChatToolCall",
+        back_populates="session",
+        cascade="all, delete-orphan",
+        order_by="ChatToolCall.created_at",
+    )
+
+
+class ChatMessage(Base):
+    __tablename__ = "chat_messages"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    session_id = Column(String, ForeignKey("chat_sessions.id"), nullable=False, index=True)
+    role = Column(String(20), nullable=False)
+    content = Column(Text, nullable=False)
+    turn_id = Column(String, nullable=True, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+
+    session = relationship("ChatSession", back_populates="messages")
+
+
+class ChatToolCall(Base):
+    __tablename__ = "chat_tool_calls"
+
+    id = Column(String, primary_key=True)
+    session_id = Column(String, ForeignKey("chat_sessions.id"), nullable=False, index=True)
+    turn_id = Column(String, nullable=True, index=True)
+    tool_name = Column(String(100), nullable=False)
+    arguments = Column(JSON, nullable=True)
+    result = Column(Text, nullable=True)
+    status = Column(String(20), nullable=False, default="running")
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+    finished_at = Column(DateTime, nullable=True)
+
+    session = relationship("ChatSession", back_populates="tool_calls")
