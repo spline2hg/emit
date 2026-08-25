@@ -102,20 +102,23 @@ kbd,
 .shimmer {
   background: linear-gradient(
     90deg,
-    var(--muted) 25%,
-    var(--muted-foreground) 50%,
-    var(--muted) 75%
+    var(--muted-foreground) 0%,
+    var(--muted-foreground) 35%,
+    #ffffff 50%,
+    var(--muted-foreground) 65%,
+    var(--muted-foreground) 100%
   );
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+  background-size: 250% 100%;
+  animation: shimmer 2s ease-in-out infinite alternate;
   -webkit-background-clip: text;
   background-clip: text;
-  -webkit-text-fill-color: transparent;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
 }
 
 @keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
 }
 
 .shimmer-dots::after {

@@ -117,7 +117,7 @@ export default function ChatPanel() {
 
     const response = DEMO_RESPONSES[Math.floor(Math.random() * DEMO_RESPONSES.length)];
 
-    const stepDelay = 600;
+    const stepDelay = 1500;
     DEMO_STEPS.forEach((_, i) => {
       setTimeout(() => {
         setActiveStep(i + 1);
@@ -194,7 +194,7 @@ export default function ChatPanel() {
             <ChatMessage from="assistant">
               <div className="flex flex-col gap-2">
                 <ThinkingSteps defaultOpen={true} className="w-full max-w-sm">
-                  <ThinkingStepsHeader>Thinking</ThinkingStepsHeader>
+                  <ThinkingStepsHeader><span className="shimmer">Thinking</span></ThinkingStepsHeader>
                   <ThinkingStepsContent>
                     {currentSteps.map((step, si) => (
                       <ThinkingStep
@@ -215,7 +215,6 @@ export default function ChatPanel() {
                     ))}
                   </ThinkingStepsContent>
                 </ThinkingSteps>
-                <span className="shimmer">Thinking</span>
               </div>
             </ChatMessage>
           )}
