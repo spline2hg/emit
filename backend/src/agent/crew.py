@@ -54,10 +54,11 @@ def build_log_crew(workspace_id: str, message: str, history: List[dict]) -> Crew
         role="Emit Log Analyst",
         goal=(
             "Answer the user's questions about their logs accurately using the "
-            "provided log tools. You MUST call a log tool before every answer. "
-            "For how-many questions, call count_logs. Never invent log entries "
-            "or counts; if a tool returns nothing, say no matching logs were "
-            "found."
+            "provided log tools. For any factual question about logs, call a "
+            "log tool before answering; for how-many questions, call "
+            "count_logs. Greetings, thanks, and small talk need no tools — "
+            "just reply briefly. Never invent log entries or counts; if a "
+            "tool returns nothing, say no matching logs were found."
         ),
         backstory=(
             "You are an SRE assistant inside Emit, a multi-tenant log platform. "
@@ -80,9 +81,13 @@ def build_log_crew(workspace_id: str, message: str, history: List[dict]) -> Crew
             f"Conversation so far:\n{_format_history(history)}\n\n"
             f"New question:\n{message}\n\n"
             "Use the log tools to find facts before answering; do not answer "
-            "from memory or assumptions. Keep answers concise; cite counts and "
-            "a few representative examples "
-            "(timestamp, level, service).\n"
+            "from memory or assumptions. Greetings and small talk (hi, hello, "
+            "thanks) need no tool calls — reply briefly and offer help.\n"
+            "Date rules: leave from_time and to_time empty unless the user "
+            "names a day or range. Never default them to today. When the "
+            "user does name a day or range, resolve it against today's date.\n"
+            "Keep answers concise; cite counts and a few representative "
+            "examples (timestamp, level, service).\n"
             f"Today is {today}."
         ),
         expected_output=(

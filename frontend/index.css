@@ -102,23 +102,23 @@ kbd,
 .shimmer {
   background: linear-gradient(
     90deg,
-    var(--muted) 25%,
-    var(--muted-foreground) 50%,
-    var(--muted) 75%
+    var(--muted-foreground) 0%,
+    var(--muted-foreground) 35%,
+    #ffffff 50%,
+    var(--muted-foreground) 65%,
+    var(--muted-foreground) 100%
   );
-  background-size: 200% 100%;
-  background-repeat: no-repeat;
-  background-color: var(--foreground);
-  animation: shimmer-sweep 3.5s ease-in-out infinite;
+  background-size: 250% 100%;
+  animation: shimmer 2s ease-in-out infinite alternate;
   -webkit-background-clip: text;
   background-clip: text;
-  -webkit-text-fill-color: transparent;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
 }
 
-@keyframes shimmer-sweep {
-  0% { background-position: 200% 0; }
-  50% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+@keyframes shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
 }
 
 .shimmer-dots::after {
@@ -363,4 +363,44 @@ kbd,
     0% { background-position: 100% 0; }
     50% { background-position: -100% 0; }
     100% { background-position: 100% 0; }
+}
+
+/* Active tool-call label: same sweep as .shimmer-text plus a pulsing glow
+   around the glyphs. Kept as one animation because two classes can't both
+   own the `animation` shorthand. */
+.shimmer-text-glow {
+    color: transparent;
+    background-image: linear-gradient(90deg, var(--foreground) 0%, var(--foreground) 35%, var(--muted-foreground) 50%, var(--foreground) 65%, var(--foreground) 100%);
+    background-color: var(--foreground);
+    background-size: 200% 100%;
+    background-repeat: no-repeat;
+    background-position: 100% 0;
+    background-clip: text;
+    -webkit-background-clip: text;
+    animation: shimmer-text-glow-sweep 3.5s ease-in-out infinite;
+}
+
+@keyframes shimmer-text-glow-sweep {
+    0% {
+        background-position: 100% 0;
+        filter: drop-shadow(0 0 1px color-mix(in oklab, var(--primary) 30%, transparent));
+    }
+    50% {
+        background-position: -100% 0;
+        filter: drop-shadow(0 0 6px color-mix(in oklab, var(--primary) 70%, transparent));
+    }
+    100% {
+        background-position: 100% 0;
+        filter: drop-shadow(0 0 1px color-mix(in oklab, var(--primary) 30%, transparent));
+    }
+}
+
+/* Pulsing glow for the active tool-call step icon. */
+.step-glow {
+    animation: step-glow-pulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes step-glow-pulse {
+    from { filter: drop-shadow(0 0 2px color-mix(in oklab, var(--primary) 30%, transparent)); }
+    to { filter: drop-shadow(0 0 6px color-mix(in oklab, var(--primary) 75%, transparent)); }
 }

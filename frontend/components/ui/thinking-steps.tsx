@@ -371,7 +371,10 @@ function ThinkingStep({
                   <Icon
                     size={14}
                     strokeWidth={1.5}
-                    className="text-muted-foreground"
+                    className={cn(
+                      "text-muted-foreground",
+                      isActive && "text-primary step-glow"
+                    )}
                   />
                 ) : (
                   <div className="w-[14px] h-[14px] flex items-center justify-center">
@@ -390,7 +393,7 @@ function ThinkingStep({
               <span
                 className={cn(
                   "text-[13px] leading-tight text-foreground",
-                  isActive && "shimmer-text"
+                  isActive && "shimmer-text-glow"
                 )}
                 style={{ fontVariationSettings: fontWeights.medium }}
               >

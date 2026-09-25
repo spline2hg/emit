@@ -95,6 +95,11 @@ function toolPayload(event: ChatEvent): ChatToolEvent | null {
     : null;
 }
 
+// Minimum time a tool call stays in its glowing "active" state. Real SQLite
+// tool calls finish in tens of milliseconds — too fast to see — so completions
+// are held back until the step has been visibly running this long.
+const MIN_ACTIVE_MS = 1100;
+
 function savedToolSteps(toolCalls: SavedToolCall[]): ThinkingStepData[] {
   return toolCalls.map((call) => {
     const result = call.result ? formatResult(call.result) : '';
@@ -223,6 +228,7 @@ export default function ChatPanel({ workspaceKey }: ChatPanelProps) {
     let answer = '';
     let failure: string | null = null;
     let liveSteps: ThinkingStepData[] = [];
+    const startedAt = new Map<string, number>();
 
     const updateSteps = (next: ThinkingStepData[]) => {
       liveSteps = next;
@@ -235,6 +241,7 @@ export default function ChatPanel({ workspaceKey }: ChatPanelProps) {
         if (!payload) return;
         const name = payload.name || 'tool';
         const id = payload.call_id || `${name}-${liveSteps.length}-${Date.now()}`;
+        startedAt.set(id, Date.now());
         updateSteps([
           ...liveSteps,
           {
@@ -259,16 +266,25 @@ export default function ChatPanel({ workspaceKey }: ChatPanelProps) {
             (step.label === payload.name && step.status === 'active'),
         );
         if (index === -1) return;
-        const next = [...liveSteps];
-        const step = next[index];
+        const step = liveSteps[index];
         const resultText = formatResult(payload.result);
-        next[index] = {
-          ...step,
-          status: 'complete',
-          details: resultText ? [resultText] : undefined,
-          detailSummary: resultText ? 'Tool call result' : undefined,
-        };
-        updateSteps(next);
+        // Hold the glowing "active" row long enough to be seen before it
+        // flips to the plain completed style.
+        const elapsed = Date.now() - (startedAt.get(step.id) ?? Date.now());
+        const wait = Math.max(0, MIN_ACTIVE_MS - elapsed);
+        window.setTimeout(() => {
+          if (!streamingRef.current) return; // turn already over
+          const currentIndex = liveSteps.findIndex((item) => item.id === step.id);
+          if (currentIndex === -1) return;
+          const next = [...liveSteps];
+          next[currentIndex] = {
+            ...next[currentIndex],
+            status: 'complete',
+            details: resultText ? [resultText] : undefined,
+            detailSummary: resultText ? 'Tool call result' : undefined,
+          };
+          updateSteps(next);
+        }, wait);
         return;
       }
 
@@ -415,9 +431,11 @@ export default function ChatPanel({ workspaceKey }: ChatPanelProps) {
             {thinking && (
               <ChatMessage from="assistant">
                 <div className="flex flex-col gap-2">
-                  {currentSteps.length > 0 && (
-                    <ThinkingSteps defaultOpen className="w-full max-w-sm">
-                      <ThinkingStepsHeader>Thinking</ThinkingStepsHeader>
+                  <ThinkingSteps defaultOpen className="w-full max-w-sm">
+                    <ThinkingStepsHeader>
+                      <span className="shimmer">Thinking</span>
+                    </ThinkingStepsHeader>
+                    {currentSteps.length > 0 && (
                       <ThinkingStepsContent>
                         {currentSteps.map((step, index) => (
                           <ThinkingStep
@@ -434,14 +452,12 @@ export default function ChatPanel({ workspaceKey }: ChatPanelProps) {
                           </ThinkingStep>
                         ))}
                       </ThinkingStepsContent>
-                    </ThinkingSteps>
-                  )}
-                  {streamingText ? (
+                    )}
+                  </ThinkingSteps>
+                  {streamingText && (
                     <div className="chat-prose prose prose-sm dark:prose-invert max-w-none whitespace-normal">
                       <Markdown>{streamingText}</Markdown>
                     </div>
-                  ) : (
-                    <span className="shimmer">{error || 'Working'}</span>
                   )}
                 </div>
               </ChatMessage>
