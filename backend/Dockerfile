@@ -16,7 +16,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf 
         "elasticsearch>=9.2.1" \
         "boto3>=1.42.19" \
         "python-dotenv>=1.2.1" \
-        "requests>=2.32.5"
+        "requests>=2.32.5" \
+        "crewai[litellm]>=1.15.14"
 
 COPY src ./src
 COPY start.sh ./start.sh
